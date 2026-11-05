@@ -20,17 +20,12 @@ CSS podstránok sa pri zostavení uzavrie pod obal stránky (`#v-pretek …`), p
 
 ## Zostavenie a náhľad
 ```
-python nastroje/zostav.py
+
 ```
 vytvorí `dist/cergovrun.sk/`, `dist/behhrebenomcergova.cergovrun.sk/` a `dist/cergovskyumirak.cergovrun.sk/`.
 Každý priečinok je samostatný (spoločné súbory aj dáta), subdoména naň môže ukazovať priamo.
 
 ```
-python nastroje/nahlad.py
-```
-zostaví weby s lokálnymi adresami do `dist/_nahlad/` a servíruje ich na http://localhost:8000 (klub),
-:8001 (Beh hrebeňom) a :8002 (Umirak).
-
 ### Náhľad na Netlify
 https://cergovrun.netlify.app/ je jeden web: klub na koreni, preteky v `/beh-hrebenom-cergova/` a `/cergovsky-umirak/`
 (adresy vo `weby.netlify.json`). Netlify ho zostaví podľa `netlify.toml`; lokálne to isté urobí
@@ -38,11 +33,3 @@ https://cergovrun.netlify.app/ je jeden web: klub na koreni, preteky v `/beh-hre
 python nastroje/zostav.py --adresy weby.netlify.json --spoj --ciel dist/netlify
 ```
 a výsledok je v `dist/netlify/cergovrun.netlify.app/`.
-
-Testy nástrojov:
-```
-python -m unittest discover -s nastroje -p "test_*.py"
-```
-
-`nastroje/vytiahni_data.py` a `nastroje/vytiahni_css.py` sú jednorazové skripty, ktoré rozdelili pôvodný `index.html`
-(v histórii gitu) na `data/*.json` a CSS súbory.
