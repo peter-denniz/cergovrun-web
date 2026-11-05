@@ -8,7 +8,8 @@ let POSTS=[];
 const zClanku=c=>({slug:c.slug,date:datumSk(c.datum,"Ukážka"),cat:c.kategoria,img:c.obrazok,alt:c.obrazok_popis,sample:c.ukazka,title:c.nazov,perex:c.perex,body:c.obsah});
 const view=document.getElementById("view");
 let cat="Všetko";
-const ph=p=>p.img?`<div class="ph"><img src="${p.img}" alt="${p.alt}"></div>`:`<div class="ph topo" role="img" aria-label="Bez fotky"></div>`;
+const ph=p=>p.img?`<div class="ph"><img src="${p.img}" alt="${p.alt}"></div>`:`<div class="ph bezfotky" role="img" aria-label="Bez fotky"></div>`;
+/* pozor: trieda .topo patrí pozadiu stránky (height:100lvh), preto miesto bez fotky má vlastnú triedu */
 const meta=p=>`<span class="lab">${p.date} · ${p.cat}</span>${p.sample?'<span class="tag">ukážka</span>':""}`;
 
 function archive(){
