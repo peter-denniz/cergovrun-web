@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Čergovrun novinky</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@400;500&display=swap">
+<style>
+/* Layout: archív noviniek (ako WordPress Články) a šablóna jedného článku v tom istom súbore.
+   Archív: najnovší článok veľký s fotkou, ostatné v mriežke, filter podľa kategórie. Článok: fotka, nadpis, text úzky ~62 znakov. */
+:root{
+ color-scheme:dark;
+ --bg:#1f2820;--panel:#273228;--line:#364237;--rule:#4a584a;
+ --ink:#ebeae0;--mute:#9ba596;--faint:#647062;--lime:#5fd542;
+ --display:"Noto Serif Display",Georgia,"Times New Roman",serif;
+ --body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:72px;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.6 var(--body);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:300;margin:0;text-wrap:balance}
+.lab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:2px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgb(31 40 32 / .55);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid rgb(54 66 55 / .6)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:10px}
+.brand{font:400 22px var(--display);text-decoration:none}
+nav{display:flex;gap:6px 26px;flex-wrap:wrap}
+nav a{font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--mute);padding:10px 0}
+nav a:hover,nav a[aria-current="page"]{color:var(--ink)}
+
+/* archív */
+.head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;padding-block:clamp(56px,10vh,110px) 18px;border-bottom:1px solid var(--line)}
+.head h1{font-size:clamp(52px,8vw,112px);line-height:.92;letter-spacing:-.02em}
+.filters{display:flex;gap:22px;flex-wrap:wrap}
+.filters button{background:none;border:0;border-bottom:1px solid transparent;color:var(--mute);font:400 13px var(--body);letter-spacing:.06em;padding:8px 0;cursor:pointer}
+.filters button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.lead{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:end;padding-block:clamp(36px,6vh,56px);border-bottom:1px solid var(--line);text-decoration:none}
+@media(max-width:820px){.lead{grid-template-columns:1fr}}
+.ph{position:relative;aspect-ratio:3/2;max-width:100%;background:var(--panel);overflow:hidden;border-radius:2px}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.ph.topo{background:var(--panel) repeating-radial-gradient(circle at 30% 70%,transparent 0 16px,rgb(235 234 224 / .07) 16px 17px)}
+a:hover .ph img{transform:scale(1.03)}
+.lead h2{font-size:clamp(32px,4vw,54px);line-height:1.02;margin:12px 0 14px}
+.lead p,.card p{margin:0;color:var(--mute);max-width:46ch}
+.more{display:inline-block;margin-top:18px;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);padding-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(24px,3vw,40px);padding-top:clamp(36px,6vh,56px)}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{display:flex;flex-direction:column;gap:10px;text-decoration:none;min-width:0}
+.card h3{font-size:24px;line-height:1.15;transition:color .2s}
+.card:hover h3,.lead:hover h2{color:var(--lime)}
+.empty{color:var(--mute);padding:40px 0}
+
+/* článok */
+.post{padding-top:clamp(40px,7vh,80px)}
+.back{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);text-decoration:none}
+.back:hover{color:var(--ink)}
+.post h1{font-size:clamp(40px,6vw,84px);line-height:.98;letter-spacing:-.015em;max-width:16ch;margin:22px 0 18px}
+.post .meta{display:flex;gap:6px 18px;flex-wrap:wrap}
+.post .ph{margin-top:clamp(28px,5vh,48px);aspect-ratio:16/8}
+.body{max-width:62ch;margin:clamp(32px,5vh,56px) auto 0;font-size:16px;line-height:1.75}
+.body p{margin:0 0 1.1em}
+.body .perex{font:300 22px/1.45 var(--display);color:var(--ink)}
+.body h2{font-size:28px;margin:1.6em 0 .6em}
+.body ol{padding-left:1.2em;margin:0 0 1.1em}
+.body li{margin-bottom:.35em}
+.body li b{font-weight:500}
+.body a{color:var(--lime)}
+.related{margin-top:clamp(64px,10vh,110px);border-top:1px solid var(--line);padding-top:16px}
+
+footer{padding-block:clamp(80px,14vh,150px) 40px}
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px;font-size:12px;color:var(--mute)}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+ <div class="wrap bar">
+  <a class="brand" href="index.html">Čergovrun</a>
+  <nav aria-label="Hlavné menu">
+   <a href="index.html#preteky">Preteky</a><a href="novinky.html" aria-current="page">Novinky</a><a href="index.html#challenge">Výzvy</a><a href="index.html#galeria">Galéria</a><a href="klub.html">O klube</a>
+  </nav>
+ </div>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<footer class="wrap">
+ <div class="foot">
+  <span>Čergovrun · Čergov v nohách. Šicko do kopca.</span>
+  <a href="index.html">Späť na úvod</a>
+ </div>
+</footer>
+
+<script src="trate.js"></script>
+<script src="pozadie.js"></script>
+<script>
+/* Články: v WordPresse to budú bežné Články (Posts) s kategóriou a ilustračným obrázkom. Tu sú natvrdo ako ukážka. */
+const POSTS=[
+ {slug:"hreben-2026",date:"24. 10. 2026",cat:"Preteky",img:"galeria/bezec-listie.jpg",alt:"Bežkyňa v jesennom lese na trati Behu hrebeňom Čergova",
+  title:"Beh hrebeňom Čergova 2026: nový traťový rekord",
+  perex:"Peter Fraňo zabehol 31,6 km hrebeňom za 2:25:04, čo je najlepší čas v histórii výsledkov na ZASRUN.",
+  body:`<p>V sobotu 24. októbra prešlo cieľom pri Hoteli Šport 122 bežcov. Štartovalo sa o deviatej na Farme v Kamenici a cez Minčol, Priehyby a sedlo Čergov sa bežalo až pod Lysú.</p>
+<h2>Najrýchlejší</h2>
+<ol><li><b>Peter Fraňo</b>, Scarpa/Geosport, 2:25:04, traťový rekord</li><li><b>Michal Lami</b>, All4Run, 2:38:57</li><li><b>Matej Pošefko</b>, Active life, 2:41:46</li></ol>
+<p>Najrýchlejšou ženou bola naša <b>Jarmila Kravcová</b> v čase 2:52:08, v absolútnom poradí deviata.</p>
+<h2>Čergovrun v prvej pätnástke</h2>
+<p>Václav Jarčuška bol šiesty (2:45:54), Jarmila Kravcová deviata, Pavol Šulík dvanásty (2:53:28) a Lukáš Pekár trinásty (2:54:24).</p>
+<p>Ďakujeme všetkým bežcom, dobrovoľníkom aj Horskej službe Čergov. Kompletné výsledky aj vekové kategórie nájdeš na <a href="https://zasrun.sk/preteky/beh-hrebenom-cergova-2026">ZASRUN</a>.</p>`},
+ {slug:"umirak-2026",date:"27. 6. 2026",cat:"Preteky",img:"",alt:"",
+  title:"Umirak vyhral domáci Václav Jarčuška",
+  perex:"Celé stupne víťazov Čergovského umiraku 2026 obsadili bežci Čergovrunu.",
+  body:`<p>Dvadsaťpäť bežcov odštartovalo 27. júna pred Ride pubom v Drienici na 30 km okruh dolinami a hrebeňom Čergova.</p>
+<h2>Poradie</h2>
+<ol><li><b>Václav Jarčuška</b>, Čergovrun Krivjany, 2:34:43</li><li><b>Pavol Šulík</b>, Čergovrun, 2:45:07</li><li><b>Peter Mladý</b>, Čergovrun, 3:07:30</li></ol>
+<p>Medzi ženami zvíťazila <b>Marka Šebejová</b> z MTC Vyšná Šebastová.</p>
+<p>Výsledky sú na <a href="https://zasrun.sk/preteky/cergovsky-umirak-2026">ZASRUN</a>.</p>`},
+ {slug:"spolocny-vybeh",date:"Ukážka",cat:"Klub",img:"galeria/cesta-jesen.jpg",alt:"Lesná cesta na Čergove v jeseni",sample:true,
+  title:"Spoločný výbeh na Minčol",
+  perex:"Ideme hore spolu, aj keď je tma a blato. Čelovku si zober, výhovorky nechaj doma.",
+  body:`<p>Toto je ukážkový článok. Ukazuje, ako bude vyzerať bežná klubová novinka o spoločnom výbehu: krátky úvod, pár odsekov textu a fotka.</p><p>Dátum, miesto štartu a trasu doplní klub. Výbehy oznamujeme aj v <a href="https://www.strava.com/clubs/CergovRun">Strava klube</a>.</p>`}
+];
+const view=document.getElementById("view");
+let cat="Všetko";
+const ph=p=>p.img?`<div class="ph"><img src="${p.img}" alt="${p.alt}"></div>`:`<div class="ph topo" role="img" aria-label="Bez fotky"></div>`;
+const meta=p=>`<span class="lab">${p.date} · ${p.cat}</span>${p.sample?'<span class="tag">ukážka</span>':""}`;
+
+function archive(){
+ document.title="Čergovrun novinky";
+ const list=POSTS.filter(p=>cat==="Všetko"||p.cat===cat);
+ const cats=["Všetko",...new Set(POSTS.map(p=>p.cat))];
+ const [first,...rest]=list;
+ view.innerHTML=`<div class="head"><h1>Novinky</h1><div class="filters" role="group" aria-label="Kategória">${cats.map(c=>`<button type="button" aria-pressed="${c===cat}">${c}</button>`).join("")}</div></div>`+
+  (first?`<a class="lead" href="#${first.slug}">${ph(first)}<div><div>${meta(first)}</div><h2>${first.title}</h2><p>${first.perex}</p><span class="more">Čítať ďalej</span></div></a>`:`<p class="empty">V tejto kategórii zatiaľ nič nie je.</p>`)+
+  (rest.length?`<div class="grid">${rest.map(p=>`<a class="card" href="#${p.slug}">${ph(p)}<div>${meta(p)}</div><h3>${p.title}</h3><p>${p.perex}</p></a>`).join("")}</div>`:"");
+ view.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>{cat=b.textContent;archive()}));
+}
+function single(p){
+ document.title=p.title+" · Čergovrun";
+ const others=POSTS.filter(x=>x!==p).slice(0,3);
+ view.innerHTML=`<article class="post"><a class="back" href="#">← Všetky novinky</a><h1>${p.title}</h1><div class="meta">${meta(p)}</div>${ph(p)}
+  <div class="body"><p class="perex">${p.perex}</p>${p.body}</div></article>
+  <div class="related"><span class="lab">Ďalšie novinky</span><div class="grid">${others.map(o=>`<a class="card" href="#${o.slug}">${ph(o)}<div>${meta(o)}</div><h3>${o.title}</h3></a>`).join("")}</div></div>`;
+ scrollTo(0,0);
+}
+/* v prototype môže byť stránka v iframe bez vlastnej adresy, kotvu potom drží CR_HASH (router.js) */
+const curHash=()=>window.CR_HASH!==undefined?window.CR_HASH:location.hash.slice(1);
+window.CR_ROUTED=true;
+function route(){const s=curHash();const p=POSTS.find(x=>x.slug===s);p?single(p):archive()}
+addEventListener("hashchange",route);route();
+</script>
+<script src="router.js"></script>
+</body>
+</html>

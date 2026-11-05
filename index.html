@@ -1,0 +1,1381 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Čergovrun návrh webu</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@300;400&family=Hanken+Grotesk:wght@400;500&display=swap">
+<style>
+/* Layout: vrstevnice Čergova ako pevné pozadie, ktoré sa pri scrollovaní posúva a otáča (čisté CSS, scroll-driven animations);
+   trasa Behu hrebeňom sa pri scrollovaní kreslí. Obsah v širokých vzdušných pásoch, tenké linky, veľké čísla, malý text.
+   Paleta z cergovrun.sk: lesná zelená, krémová, limetková len na trasu a hlavné tlačidlo. Zámerne jeden tmavý vzhľad. */
+:root{
+ color-scheme:dark;
+ --bg:#1f2820;--panel:#273228;--line:#364237;--rule:#4a584a;
+ --ink:#ebeae0;--mute:#b0b9ab;--faint:#647062;
+ --lime:#5fd542;--topo:#ebeae0;
+ --display:"Noto Serif Display",Georgia,"Times New Roman",serif;
+ --body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 14px/1.6 var(--body);font-variant-numeric:tabular-nums;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:300;margin:0;text-wrap:balance}
+.lab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ---------- vrstevnice v pozadí ---------- */
+/* Dve vrstvy: vrstevnice ako hotový obrázok (vykreslí sa raz) a malé SVG s trasami (len ono sa pri scrollovaní prekresľuje).
+   Výška 100lvh: na mobile sa pozadie nezväčšuje ani neskáče, keď sa schová lišta prehliadača. */
+.topo{position:fixed;top:0;left:0;right:0;height:100vh;height:100lvh;z-index:0;pointer-events:none;overflow:hidden}
+.topo-in{position:absolute;inset:0}
+.topo-l{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:50% 50%;transform:scale(.92);will-change:transform;backface-visibility:hidden}
+/* Mobil na výšku: mapu otočíme o 90°, aby sa obe celé trasy aj štarty zmestili na úzku obrazovku */
+@media (orientation:portrait){
+ /* posunuté o kus vyššie, aby bola celá trasa nad textom úvodu */
+ .topo-in{inset:auto;left:50%;top:calc(50% - 56px);width:100vh;width:100lvh;height:100vw;transform:translate(-50%,-50%) rotate(-90deg)}
+ .topo .peakt{font-size:9px;transform-box:fill-box;transform-origin:0 50%;transform:rotate(90deg)}
+}
+/* Beh hrebeňom je výkladná skriňa: výrazná limetková čiara. Umirak len tenká tlmená čiara v pozadí. */
+.topo .route{stroke:var(--lime);stroke-opacity:.9;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
+.topo .route2{stroke:var(--ink);stroke-opacity:.25;stroke-width:1;fill:none;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
+.topo path{vector-effect:non-scaling-stroke}
+/* Trasy bez non-scaling-stroke: inak prehliadač počíta čiarkovanie v pixeloch a trasa nie je na začiatku úplne skrytá */
+.topo .route,.topo .route2{vector-effect:none;stroke-dasharray:1 2}
+#world,.topo .band{transform-box:view-box;transform-origin:0 0}
+.topo .peak{fill:var(--lime)}
+.topo .start{fill:none;stroke:var(--lime);stroke-width:1.5}
+/* pri načítaní sú obe trasy celé (ghost), po prvom scrollnutí zmiznú a trasy sa kreslia od štartu */
+.topo .ghost{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:none;transition:opacity .9s ease}
+.topo .ghost-h{stroke:var(--lime);stroke-opacity:.9;stroke-width:2.4}
+.topo .ghost-u{stroke:var(--ink);stroke-opacity:.25;stroke-width:1}
+.topo.scrolled .ghost{opacity:0}
+.topo .start2{fill:none;stroke:var(--ink);stroke-opacity:.3;stroke-width:1}
+.strava{display:inline-flex;align-items:center;gap:10px;background:#fc5200;color:#fff;text-decoration:none;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:11px 18px;border-radius:999px;border:0;cursor:pointer}
+.strava:hover{background:#e34a00}
+.strava svg{width:14px;height:14px;fill:currentColor}
+.fine{font-size:11px;color:var(--faint);margin-top:12px}
+.cover{display:flex;flex-direction:column;gap:8px;margin-top:20px}
+.cover div{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--mute)}
+.cover i{display:block;height:4px;background:var(--line);border-radius:2px;position:relative;margin-bottom:8px}
+.cover i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--p);background:var(--lime);border-radius:2px}
+/* popisy vrcholov len jemne, nech nerušia text v popredí */
+.topo .peakt{fill:var(--ink);fill-opacity:.38;font:500 7px var(--body);letter-spacing:.12em}
+.veil{position:fixed;top:0;left:0;right:0;height:100vh;height:100lvh;z-index:0;pointer-events:none;background:radial-gradient(120% 80% at 70% 40%,transparent 0%,var(--bg) 85%);opacity:.55}
+main,header,footer{position:relative;z-index:1}
+
+/* ---------- hlavička ---------- */
+/* menu: priesvitné, ukotvené hore, rozmazáva obsah pod sebou */
+html{scroll-padding-top:72px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border-bottom:1px solid rgb(54 66 55 / .6)}
+header.top .bar{padding-block:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font:400 26px var(--display);text-decoration:none;text-transform:uppercase;letter-spacing:.08em}
+nav{display:flex;gap:6px 26px;flex-wrap:wrap;align-items:center}
+nav a{font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--mute);padding:10px 0}
+nav a:hover{color:var(--ink)}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--lime);color:#13200f;text-decoration:none;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:11px 18px;border-radius:999px}
+.cta:hover{background:#7be062}
+.ghost{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:10px 0;border-bottom:1px solid var(--rule)}
+.ghost:hover{border-color:var(--ink)}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(90px,17vh,190px) clamp(8px,3vh,32px);display:flex;flex-direction:column;gap:28px}
+.hero h1{font-size:clamp(54px,9.5vw,138px);line-height:.92;letter-spacing:-.02em;max-width:9ch}
+.hero h1 em{font-style:normal;color:var(--lime)}
+.hero .sar{font:italic 300 clamp(20px,2.2vw,30px)/1 var(--display);color:var(--mute);margin-top:-12px}
+.hero p{max-width:34ch;color:var(--mute);font-size:15px;margin:0}
+.hero p b{color:var(--ink);font-weight:500}
+/* úvod bez sloganu: logo hlavného preteku ako odkaz na jeho detail; nadpis stránky len pre čítačky */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hero{align-items:flex-start}
+.hero-logo{display:block;width:clamp(96px,17vw,240px);opacity:.92;transition:opacity .2s,transform .2s}
+.hero-logo:hover{opacity:1;transform:translateY(-2px)}
+.hero-logo img{display:block;width:100%;height:auto}
+/* mobil: úvod nižšie na prvej obrazovke, nad ním je vidieť kus mapy s trasou */
+@media (max-width:700px){
+ .hero{min-height:68svh;justify-content:flex-end;padding-block:0 20px;gap:16px}
+ .hero-logo{width:150px}
+ .hero .lab{order:3}
+}
+.hero .acts{display:flex;gap:14px 28px;flex-wrap:wrap;align-items:center}
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--line);margin-top:clamp(40px,8vh,90px)}
+.nums div{padding:18px 18px 0 0;display:flex;flex-direction:column;gap:4px}
+.nums b{font:300 clamp(34px,4.4vw,56px)/1 var(--display)}
+.nums b small{font-size:.42em;color:var(--mute);margin-left:4px}
+
+/* ---------- sekcie ---------- */
+/* sekcie ako matné sklo nad vrstevnicami: pozadie presvitá, text má kontrast */
+section.band{margin-top:clamp(40px,7vh,88px);padding-block:clamp(28px,4vw,52px);padding-left:max(clamp(18px,3vw,40px),env(safe-area-inset-left,0px));padding-right:max(clamp(18px,3vw,40px),env(safe-area-inset-right,0px));background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border:1px solid rgb(235 234 224 / .07);border-radius:4px}
+.hero+section.band{margin-top:clamp(24px,4vh,48px)}
+.shead{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:clamp(28px,5vh,48px)}
+.shead h2{font-size:clamp(34px,4.4vw,58px);line-height:1}
+
+/* preteky */
+.races{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(40px,6vw,80px)}
+@media(max-width:820px){.races{grid-template-columns:1fr}}
+.race{display:flex;flex-direction:column;gap:18px;min-width:0}
+.race h3{font-size:clamp(28px,3vw,40px);line-height:1.05}
+.race .meta{display:flex;gap:6px 18px;flex-wrap:wrap;color:var(--mute);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stats div{padding:14px 12px 12px 0;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stats div+div{padding-left:14px;border-left:1px solid var(--line)}
+.stats b{font:300 30px/1.05 var(--display)}
+.stats span{font-size:11px;color:var(--mute)}
+.prof{position:relative;height:170px;margin-top:6px}
+.prof svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.prof .area{fill:var(--ink);fill-opacity:.06}
+.prof .ln{fill:none;stroke:var(--ink);stroke-width:1.4;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:0}
+.race.main .prof .ln{stroke:var(--lime)}
+.prof .g{position:absolute;left:0;right:0;border-top:1px dashed var(--line);font-size:10px;color:var(--faint)}
+.prof .g span{position:absolute;right:0;top:-15px}
+.prof .top{position:absolute;transform:translate(-50%,-100%);font-size:11px;color:var(--ink);white-space:nowrap;padding-bottom:8px}
+.prof .top::after{content:"";position:absolute;left:50%;bottom:0;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--lime)}
+.prof .kms{position:absolute;left:0;right:0;bottom:-20px;display:flex;justify-content:space-between;font-size:10px;color:var(--faint)}
+.win{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:18px}
+.win b{color:var(--ink);font-weight:500}
+.race .acts{display:flex;gap:24px;flex-wrap:wrap}
+
+/* challenge */
+.chal{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(36px,6vw,90px);align-items:end}
+@media(max-width:820px){.chal{grid-template-columns:1fr}}
+.chal h2{font-size:clamp(26px,2.8vw,38px);line-height:1.1;margin-top:8px}
+.chal p{color:var(--mute);max-width:40ch;margin:18px 0 26px}
+.board{border-top:1px solid var(--line)}
+.board .row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.board .row b{font:300 22px var(--display)}
+.board .row span{color:var(--mute);font-size:12px}
+.chal2{margin-top:clamp(64px,11vh,120px);padding-top:clamp(40px,6vh,64px);border-top:1px solid var(--line);align-items:start}
+.minc{position:relative;padding-top:26px}
+.mtri{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:8px 6px}
+.mtri i{display:block;aspect-ratio:1.15;background:var(--line);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.mtri i.on{background:var(--ink)}
+.mtri i.half{background:linear-gradient(to right,var(--ink) 40%,var(--line) 40%)}
+.ever{position:absolute;top:0;bottom:calc(50% - 4px);border-left:1px dashed var(--lime)}
+.ever span{position:absolute;top:0;right:6px;white-space:nowrap;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--lime)}
+.tag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:2px}
+
+/* novinky */
+.news{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(24px,4vw,48px)}
+@media(max-width:820px){.news{grid-template-columns:1fr}}
+.news a{display:flex;flex-direction:column;gap:10px;text-decoration:none;border-top:1px solid var(--line);padding-top:16px;min-width:0}
+.news a:hover h3{color:var(--lime)}
+.news h3{font-size:22px;line-height:1.2;transition:color .2s}
+.news p{margin:0;color:var(--mute);font-size:13px}
+
+/* galéria */
+.gal{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:230px 230px;gap:10px}
+.gal figure{margin:0;background:var(--panel);border-radius:2px;position:relative;overflow:hidden}
+.gal figure:first-child{grid-row:span 2}
+.gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9);transition:transform .6s ease,filter .6s ease}
+.gal figure:hover img{transform:scale(1.04);filter:saturate(1.05)}
+.gal figcaption{position:absolute;left:0;right:0;bottom:0;padding:28px 14px 12px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#ebeae0;background:linear-gradient(to top,rgb(20 28 21 / .75),transparent)}
+@media(max-width:640px){.gal{grid-template-columns:1fr 1fr;grid-template-rows:240px 150px 150px}.gal figure:first-child{grid-column:span 2;grid-row:auto}}
+
+/* pätička */
+footer{padding-block:clamp(90px,16vh,180px) 40px}
+.foot{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:22px;color:var(--mute);font-size:12px}
+.foot .big{font:300 clamp(40px,6vw,80px)/1 var(--display);color:var(--ink);width:100%;margin-bottom:10px}
+.foot div{display:flex;flex-direction:column;gap:6px}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--ink)}
+
+/* Dotykové zariadenia: rozmazanie pod panelmi by sa pri pohyblivom pozadí prepočítavalo každý snímok.
+   Namiesto neho trochu tmavšie sklo, kontrast textu ostáva rovnaký. */
+@media (hover:none),(max-width:700px){
+ header.top,section.band,#v-pretek .hero,#v-klub .hero,#v-novinky .lead,#v-novinky .grid,#v-novinky .post,#v-novinky .related{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgb(24 32 25 / .45)!important}
+ #v-novinky .related .grid{background:none!important}
+ header.top{background:rgb(24 32 25 / .65)!important}
+}
+/* Mobil: menu schované pod burger vpravo; po kliknutí sa ukáže v jednom riadku pod názvom (posúva sa do strany, ak sa nezmestí) */
+.burger{display:none}
+@media (max-width:700px){
+ html{scroll-padding-top:72px}
+ header.top .bar{gap:0 16px;padding-block:6px}
+ .brand{font-size:20px}
+ .burger{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-10px;padding:0;background:none;border:0;color:var(--ink);cursor:pointer}
+ .burger svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+ .burger .b-x,header.top.open .burger .b-3{display:none}
+ header.top.open .burger .b-x{display:inline}
+ nav{display:none;flex-wrap:nowrap;overflow-x:auto;gap:18px;width:100%;scrollbar-width:none}
+ header.top.open nav{display:flex}
+ nav::-webkit-scrollbar{display:none}
+ nav a{white-space:nowrap;letter-spacing:.12em;padding:8px 0 10px}
+}
+
+/* ---------- scroll-driven animácie (len CSS) ---------- */
+@supports (animation-timeline: scroll()){
+ @media (prefers-reduced-motion:no-preference){
+  /* A · Drift: celá mapa sa posúva, otáča a približuje */
+  .topo[data-bg="drift"] .topo-l{animation:topo linear both;animation-timeline:scroll(root block)}
+  /* Na konci stránky sa mapa vráti tak, aby boli obe celé trasy na obrazovke */
+  /* Bez priblíženia: obe trasy aj ich štarty sú na obrazovke od začiatku, mapa sa len jemne posúva a pootáča */
+  @keyframes topo{0%{transform:scale(.92)}50%{transform:translate3d(-1.5%,-2%,0) rotate(-3deg) scale(.94)}100%{transform:rotate(-1.5deg) scale(.9)}}
+  /* Oba preteky štartujú naraz hore na stránke a „bežia“ rovnakým tempom: kratší Umirak (28,9 km) dobehne skôr ako hrebeň (31,7 km) */
+  .topo .route{animation:draw linear both;animation-timeline:scroll(root block);animation-range:0% 95%}
+  .topo .route2{animation:draw linear both;animation-timeline:scroll(root block);animation-range:0% 87%}
+  /* dotykové zariadenia: trasa sa dokresľuje po 48 krokoch, nie pri každom snímku; vrstva s trasami sa tak prekreslí len 48-krát za celú stránku */
+  @media (hover:none){.topo .route,.topo .route2{animation-timing-function:steps(48,end)}}
+  @keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+  .veil{animation:veil linear both;animation-timeline:scroll(root block)}
+  @keyframes veil{from{opacity:.35}to{opacity:.5}}
+  .prof .ln{animation:draw2 linear both;animation-timeline:view();animation-range:entry 20% cover 50%}
+  @keyframes draw2{from{stroke-dashoffset:.85}to{stroke-dashoffset:0}}
+  .hero h1{animation:rise linear both;animation-timeline:scroll(root block);animation-range:0 60vh}
+  @keyframes rise{to{transform:translateY(-40px);opacity:.25}}
+ }
+}
+</style>
+
+<div class="topo" id="topoWrap" data-bg="drift" aria-hidden="true"><div class="topo-in">
+ <img class="topo-l" src="vrstevnice.svg" width="1000" height="765" alt="" decoding="async">
+ <svg class="topo-l" id="topo" viewBox="0 0 1000 765" preserveAspectRatio="xMidYMid slice">
+  <path class="route2" id="rUmirak" pathLength="1"></path>
+  <path class="route" id="rHreben" pathLength="1"></path>
+  <g id="peaks"></g>
+ </svg>
+</div></div><div class="veil" aria-hidden="true"></div>
+
+<header class="top">
+ <div class="wrap bar">
+  <a class="brand" href="#">Čergovrun</a>
+  <button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="b-3" d="M4 7h16M4 12h16M4 17h16"/><path class="b-x" d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <nav aria-label="Hlavné menu" id="menu">
+   <a href="#preteky">Preteky</a><a href="#novinky">Novinky</a><a href="#challenge">Výzvy</a><a href="#galeria">Galéria</a><a href="#klub">O klube</a>
+  </nav>
+ </div>
+</header>
+
+<main id="v-home">
+ <section class="hero wrap">
+  <span class="lab">Bežecký klub · Čergovské pohorie</span>
+  <h1 class="sr">Čergovrun, bežecký klub spod Čergova</h1>
+  <a class="hero-logo" href="#pretek-hreben" aria-label="Beh hrebeňom Čergova, detail preteku"><img src="logo-hreben.svg" alt="" width="640" height="421"></a>
+  <p>Najlepšie pobehanie v širokom okolí. Veľa kopcov, lúk a výhľadov. Jednoducho <b>Čergov</b></p>
+ </section>
+
+ <section class="band wrap" id="preteky">
+  <div class="shead"><h2>Preteky</h2><span class="lab">Výsledky 2026 · termíny 2027 čoskoro</span></div>
+  <div class="races" id="uPreteky"></div>
+ </section>
+
+ <section class="band wrap" id="novinky">
+  <div class="shead"><h2>Novinky</h2><a class="ghost" href="#novinky">Všetky novinky</a></div>
+  <div class="news" id="uNovinky"></div>
+ </section>
+
+ <section class="band wrap" id="challenge">
+  <div class="shead"><h2>Výzvy</h2><span class="lab">Celý rok, cez Stravu</span></div>
+  <div class="chal">
+   <div>
+    <span class="lab">Celoročná výzva</span>
+    <h2>Zbieraj kilometre na trati.</h2>
+    <p>Netreba dať celý hrebeň naraz. Každý kúsok trate Behu hrebeňom aj Umiraku, ktorý počas roka prebehneš, sa ti pripočíta.</p>
+    <button type="button" class="strava">Pripojiť Stravu</button>
+    <p class="fine">Z aktivít porovnáme len trasu s traťami pretekov. Svoje kilometre vidíš iba ty.</p>
+   </div>
+   <div>
+    <div class="lab" style="margin-bottom:12px">Tvoj rok na tratiach <span class="tag">ukážka</span></div>
+    <div class="board">
+     <div class="row"><span></span><b>84,3 km</b><span>spolu na tratiach</span></div>
+    </div>
+    <div class="cover">
+     <div><span>Beh hrebeňom</span><span>22,4 z 31,7 km</span></div>
+     <i style="--p:71%"></i>
+     <div><span>Čergovský umirak</span><span>12,1 z 28,9 km</span></div>
+     <i style="--p:42%"></i>
+    </div>
+   </div>
+  </div>
+
+  <div class="chal chal2">
+   <div>
+    <span class="lab">Strava klub Čergovrun</span>
+    <h2>Koľko Minčolov máš v&nbsp;nohách?</h2>
+    <p>Každý výškový meter sa ráta, aj ten v blate. Pripoj Stravu a spočítame ti stúpanie za celý rok v Minčoloch.</p>
+    <button type="button" class="strava" id="stravaBtn">Pripojiť Stravu</button>
+    <p class="fine" id="stravaNote">Čítame len stúpanie tvojich aktivít. Svoje Minčoly vidíš iba ty a Stravu môžeš kedykoľvek odpojiť.</p>
+   </div>
+   <div>
+    <div class="board">
+     <div class="row"><span></span><b>1 157 m</b><span>1 Minčol</span></div>
+     <div class="row"><span></span><b>7,6 Minčola</b><span>1 Everest, 8 849 m</span></div>
+     <div class="row"><span></span><b>Tvoj rok</b><span>po pripojení Stravy</span></div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <section class="band wrap" id="galeria">
+  <div class="shead"><h2>Galéria</h2><span class="lab" id="uGaleriaNazov"></span></div>
+  <div class="gal" id="uGaleria"></div>
+ </section>
+</main>
+
+<footer class="wrap" id="v-home-foot">
+ <div class="foot">
+  <div class="big">Vidíme sa na Čergove.</div>
+  <div><span class="lab">Klub</span><a href="#klub">O nás</a><a href="#klub-clenstvo">Pridaj sa</a><a href="#klub-dane">2 % dane</a></div>
+  <div><span class="lab">Preteky</span><a href="#preteky">Beh hrebeňom Čergova</a><a href="#preteky">Čergovský umirak</a><a href="https://zasrun.sk">Registrácie cez ZASRUN</a></div>
+  <div><span class="lab">Sledujte nás</span><a href="https://www.facebook.com/people/Beh-hrebe%C5%88om-%C4%8Cergova/100051324536911/">Facebook</a><a href="https://www.strava.com/clubs/CergovRun">Strava klub</a></div>
+ </div>
+</footer>
+
+<script type="application/json" id="data-galeria">{
+ "nazov": "Beh hrebeňom Čergova 2026",
+ "fotky": [
+  {"subor": "galeria/bezec-listie.jpg", "popis": "Bežkyňa so štartovým číslom 4 v jesennom lese, ukazuje víťazné V", "titulok": "Na hrebeni · október 2026", "vyrez": ""},
+  {"subor": "galeria/ciel-skupina.jpg", "popis": "Spoločná fotka bežcov pod nafukovacou bránou", "titulok": "Celá partia", "vyrez": ""},
+  {"subor": "galeria/zjazdovka-veza.jpg", "popis": "Bežec na zjazdovke pod rozhľadňou", "titulok": "Posledné metre", "vyrez": ""},
+  {"subor": "galeria/cesta-jesen.jpg", "popis": "Lesná cesta v jesenných farbách pod modrou oblohou", "titulok": "Čergov na jeseň", "vyrez": "50% 35%"},
+  {"subor": "galeria/podium.jpg", "popis": "Tri najrýchlejšie ženy s cenami", "titulok": "Najrýchlejšie ženy", "vyrez": ""}
+ ]
+}
+</script>
+<script type="application/json" id="data-klub">{
+ "nazov": "OZ Čergovrun",
+ "zalozenie": "2018-12-27",
+ "clenovia": 60,
+ "ico": "",
+ "uvod": "Bežíme spolu od decembra 2018. Organizujeme Beh hrebeňom Čergova aj Čergovský umirak a kedykoľvek sa dá, vybehneme spolu na hrebeň.",
+ "fotka": {"subor": "galeria/ciel-skupina.jpg", "popis": "Spoločná fotka bežcov pod nafukovacou bránou Behu hrebeňom Čergova", "titulok": "Beh hrebeňom Čergova 2026", "ukazka": true},
+ "pribeh": "",
+ "poslanie": "Čergovrun je bežecký klub s poslaním rozvíjať beh ako šport a komunitu v regióne Čergov. Sme zanietení pre zdravý životný štýl a spájame bežcov všetkých vekových kategórií, aby sme spoločne budovali silnú bežeckú komunitu.",
+ "kontakt": {"meno": "Lukáš Višňovský", "telefon": "+421 944 001 353", "email": "visnovskylukas@gmail.com"},
+ "odkazy": {"strava": "https://www.strava.com/clubs/CergovRun", "facebook": "https://www.facebook.com/people/Beh-hrebe%C5%88om-%C4%8Cergova/100051324536911/"},
+ "podpora": [
+  {"poskytovatel": "Prešovský samosprávny kraj", "program": "Výzva poslancov PSK", "rok": 2026, "projekt": "Čergovská bežecká séria 2026: Od komunitných behov k svetovému rankingu", "prijimatel": "Čergovrun", "dotacia": "2000", "tabula": ""}
+ ]
+}
+</script>
+<script type="application/json" id="data-novinky">[
+ {
+  "slug": "hreben-2026",
+  "nazov": "Beh hrebeňom Čergova 2026: nový traťový rekord",
+  "datum": "2026-10-24",
+  "kategoria": "Preteky",
+  "obrazok": "galeria/bezec-listie.jpg",
+  "obrazok_popis": "Bežkyňa v jesennom lese na trati Behu hrebeňom Čergova",
+  "perex": "Peter Fraňo zabehol 31,6 km hrebeňom za 2:25:04, čo je najlepší čas v histórii výsledkov na ZASRUN.",
+  "obsah": "<p>V sobotu 24. októbra prešlo cieľom pri Hoteli Šport 122 bežcov. Štartovalo sa o deviatej na Farme v Kamenici a cez Minčol, Priehyby a sedlo Čergov sa bežalo až pod Lysú.<\/p><h2>Najrýchlejší<\/h2><ol><li><b>Peter Fraňo<\/b>, Scarpa/Geosport, 2:25:04, traťový rekord<\/li><li><b>Michal Lami<\/b>, All4Run, 2:38:57<\/li><li><b>Matej Pošefko<\/b>, Active life, 2:41:46<\/li><\/ol><p>Najrýchlejšou ženou bola naša <b>Jarmila Kravcová<\/b> v čase 2:52:08, v absolútnom poradí deviata.<\/p><h2>Čergovrun v prvej pätnástke<\/h2><p>Václav Jarčuška bol šiesty (2:45:54), Jarmila Kravcová deviata, Pavol Šulík dvanásty (2:53:28) a Lukáš Pekár trinásty (2:54:24).<\/p><p>Ďakujeme všetkým bežcom, dobrovoľníkom aj Horskej službe Čergov. Kompletné výsledky aj vekové kategórie nájdeš na <a href=\"https://zasrun.sk/preteky/beh-hrebenom-cergova-2026\">ZASRUN<\/a>.<\/p>",
+  "ukazka": false
+ },
+ {
+  "slug": "umirak-2026",
+  "nazov": "Umirak vyhral domáci Václav Jarčuška",
+  "datum": "2026-06-27",
+  "kategoria": "Preteky",
+  "obrazok": "",
+  "obrazok_popis": "",
+  "perex": "Celé stupne víťazov Čergovského umiraku 2026 obsadili bežci Čergovrunu.",
+  "obsah": "<p>Dvadsaťpäť bežcov odštartovalo 27. júna pred Ride pubom v Drienici na 30 km okruh dolinami a hrebeňom Čergova.<\/p><h2>Poradie<\/h2><ol><li><b>Václav Jarčuška<\/b>, Čergovrun Krivjany, 2:34:43<\/li><li><b>Pavol Šulík<\/b>, Čergovrun, 2:45:07<\/li><li><b>Peter Mladý<\/b>, Čergovrun, 3:07:30<\/li><\/ol><p>Medzi ženami zvíťazila <b>Marka Šebejová<\/b> z MTC Vyšná Šebastová.<\/p><p>Výsledky sú na <a href=\"https://zasrun.sk/preteky/cergovsky-umirak-2026\">ZASRUN<\/a>.<\/p>",
+  "ukazka": false
+ },
+ {
+  "slug": "spolocny-vybeh",
+  "nazov": "Spoločný výbeh na Minčol",
+  "datum": "",
+  "kategoria": "Klub",
+  "obrazok": "galeria/cesta-jesen.jpg",
+  "obrazok_popis": "Lesná cesta na Čergove v jeseni",
+  "perex": "Ideme hore spolu, aj keď je tma a blato. Čelovku si zober, výhovorky nechaj doma.",
+  "obsah": "<p>Toto je ukážkový článok. Ukazuje, ako bude vyzerať bežná klubová novinka o spoločnom výbehu: krátky úvod, pár odsekov textu a fotka.<\/p><p>Dátum, miesto štartu a trasu doplní klub. Výbehy oznamujeme aj v <a href=\"https://www.strava.com/clubs/CergovRun\">Strava klube<\/a>.<\/p>",
+  "ukazka": true
+ }
+]
+</script>
+<script type="application/json" id="data-preteky">[
+ {
+  "slug": "hreben",
+  "nazov": "Beh hrebeňom Čergova",
+  "hlavny": true,
+  "logo": "logo-hreben.svg",
+  "mesiac": "Október",
+  "miesto": "Kamenica pri Sabinove · Farma",
+  "podnadpis": "Október · Kamenica → Hotel Šport",
+  "popis": "Najdlhší horský beh v pohorí. Cez Minčol, Dvoriská, Solisko, Veľkú Javorinu, Čergov a Lysú až do sedla Besná.",
+  "stav": "Ročník 2026 sa bežal 24. 10. 2026. Termín 2027 zverejníme na ZASRUN.",
+  "datum": "2026-10-24",
+  "trasa": "hreben",
+  "gpx": "https://zasrun.sk/api/trasy/2/gpx",
+  "registracia": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2026",
+  "itra": 2,
+  "liga": "Slovenská skyrunningová liga",
+  "cisla": [
+   {"hodnota": "31,6", "popis": "km"},
+   {"hodnota": "+1 413", "popis": "m stúpania"},
+   {"hodnota": "5 h", "popis": "časový limit"},
+   {"hodnota": "150", "popis": "bežcov najviac"}
+  ],
+  "karta": {
+   "cisla": [
+    {"hodnota": "31,6", "popis": "km"},
+    {"hodnota": "+1 413", "popis": "m stúpania"},
+    {"hodnota": "554–1 160", "popis": "m n. m."}
+   ],
+   "zvyraznenie": {"nadpis": "Traťový rekord", "meno": "Peter Fraňo", "doplnok": "2026", "cas": "2:25:04", "tempo": "4:38 min/km"},
+   "vysledky": {"rok": 2026, "url": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2026"}
+  },
+  "obcerstvovacky": [
+   {"km_trasy": 6.65, "nazov": "Lazy", "popis": "1. občerstvovačka · 6,5 km · 1 090 m"},
+   {"km_trasy": 16.28, "nazov": "Sedlo Priehyby", "popis": "2. občerstvovačka · 14,5 km · 815 m"},
+   {"km_trasy": 27.1, "nazov": "Sedlo Čergov", "popis": "3. občerstvovačka · 25,5 km · 915 m"}
+  ],
+  "body_na_mape": [
+   {"km_trasy": 7.105, "nazov": "Minčol 1 157 m", "strana": "end"}
+  ],
+  "start": "Štart · Farma Kamenica",
+  "ciel": "Cieľ · Hotel Šport",
+  "propozicie": [
+   {"nazov": "Štartovné", "hodnota": "36 € (2026), úhrada do 22. 10."},
+   {"nazov": "Prihlášky", "hodnota": "cez ZASRUN do 22. 10. 2026"},
+   {"nazov": "Časový limit", "hodnota": "5 hodín"},
+   {"nazov": "Kapacita", "hodnota": "150 bežcov"},
+   {"nazov": "Kategórie", "hodnota": "MA, MB, MC, ŽA, ŽB"},
+   {"nazov": "Hodnotenie", "hodnota": "prví traja v každej vekovej kategórii, prvý muž a žena v absolútnom poradí"},
+   {"nazov": "Ceny", "hodnota": "vecné ceny pre prvých troch v kategóriách"},
+   {"nazov": "Povrch", "hodnota": "lesný turistický chodník, asfalt"},
+   {"nazov": "Zdravotná služba", "hodnota": "Horská služba Čergov"},
+   {"nazov": "Úschovňa", "hodnota": "v cieli, Hotel Šport"},
+   {"nazov": "Sprcha", "hodnota": "nie je k dispozícii"},
+   {"nazov": "Výbava", "hodnota": "preukaz poistenca, mobil a pohár na vodu"}
+  ],
+  "harmonogram": [
+   {"cas": "7:30–8:30", "popis": "Prezentácia na Farme Kamenica"},
+   {"cas": "8:30", "popis": "Výklad trate, povinný pre všetkých"},
+   {"cas": "9:00", "popis": "Štart"},
+   {"cas": "12:00–14:30", "popis": "Dobeh do cieľa a obed"},
+   {"cas": "15:00", "popis": "Vyhlásenie výsledkov, Hotel Šport"}
+  ],
+  "doprava": [
+   {"nazov": "Autobus", "hodnota": "7:15 z parkoviska pri Hoteli Javorná v Drienici do Kamenice, pre všetkých bežcov"},
+   {"nazov": "Parkovanie", "hodnota": "parkovisko pri Hoteli Javorná, Drienica"},
+   {"nazov": "Batožina", "hodnota": "organizátor odvezie osobné veci zo štartu do cieľa"},
+   {"nazov": "Cieľ", "hodnota": "Hotel Šport, Lysá"}
+  ],
+  "rekordy": {
+   "muzi": {"cas": "2:25:04", "meno": "Peter Fraňo", "klub": "Scarpa/Geosport", "rok": 2026},
+   "zeny": {"cas": "2:49:18", "meno": "Jarmila Kravcová", "klub": "Čergovrun", "rok": 2024}
+  },
+  "archiv": [
+   {"rocnik": 2026, "datum": "2026-10-24", "v_cieli": 122, "vitaz": {"meno": "Peter Fraňo", "cas": "2:25:04"}, "vitazka": {"meno": "Jarmila Kravcová", "cas": "2:52:08"}, "vysledky": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2026"},
+   {"rocnik": 2025, "datum": "2025-10-18", "v_cieli": 97, "vitaz": {"meno": "Pavol Orolin", "cas": "2:27:53"}, "vitazka": {"meno": "Renáta Lechvár", "cas": "3:20:17"}, "vysledky": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2025"},
+   {"rocnik": 2024, "datum": "2024-10-26", "v_cieli": 100, "vitaz": {"meno": "Peter Mlynár", "cas": "2:31:19"}, "vitazka": {"meno": "Jarmila Kravcová", "cas": "2:49:18"}, "vysledky": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2024"},
+   {"rocnik": 2023, "datum": "2023-10-21", "v_cieli": 133, "vitaz": {"meno": "Štefan Planeta", "cas": "2:50:33"}, "vitazka": {"meno": "Viera Slivková", "cas": "3:03:20"}, "vysledky": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2023"}
+  ],
+  "organizatori": [
+   {"nazov": "OZ Čergovrun", "rola": "Hlavný organizátor"},
+   {"nazov": "BK ZasRun Šarišské Bohdanovce", "rola": "Časomiera a registrácia"}
+  ]
+ },
+ {
+  "slug": "umirak",
+  "nazov": "Čergovský umirak",
+  "hlavny": false,
+  "logo": "",
+  "mesiac": "Jún",
+  "miesto": "Čergov",
+  "podnadpis": "Jún · Drienica, štart aj cieľ pri Ride pube",
+  "popis": "Dolinami a hrebeňom Čergova po turisticky značenom chodníku. Pre trénovaných bežcov s chuťou na poriadny kopec.",
+  "stav": "Ročník 2026 sa bežal 27. 6. 2026. Termín 2027 zverejníme na ZASRUN.",
+  "datum": "2026-06-27",
+  "trasa": "umirak",
+  "gpx": "https://zasrun.sk/api/trasy/88/gpx",
+  "registracia": "https://zasrun.sk/preteky/cergovsky-umirak-2026",
+  "itra": null,
+  "liga": "",
+  "cisla": [
+   {"hodnota": "30", "popis": "km ±1 km"},
+   {"hodnota": "+1 235", "popis": "m stúpania"},
+   {"hodnota": "5 h", "popis": "časový limit"},
+   {"hodnota": "50", "popis": "bežcov najviac"}
+  ],
+  "karta": {
+   "cisla": [
+    {"hodnota": "30", "popis": "km ±1 km"},
+    {"hodnota": "+1 235", "popis": "m stúpania"},
+    {"hodnota": "493–1 085", "popis": "m n. m."}
+   ],
+   "zvyraznenie": {"nadpis": "Víťaz 2026", "meno": "Václav Jarčuška", "doplnok": "Čergovrun", "cas": "2:34:43", "tempo": "4:59 min/km"},
+   "vysledky": {"rok": 2026, "url": "https://zasrun.sk/preteky/cergovsky-umirak-2026"}
+  },
+  "obcerstvovacky": [
+   {"km_trasy": 10.0, "nazov": "Dolina Tokárne", "popis": "1. občerstvovačka · cca 10 km"},
+   {"km_trasy": 18.0, "nazov": "Chata Čergov", "popis": "2. občerstvovačka · cca 18 km"}
+  ],
+  "body_na_mape": [
+   {"km_trasy": 15.477, "nazov": "Najvyšší bod 1 085 m", "strana": ""}
+  ],
+  "start": "Štart a cieľ · Ride pub",
+  "ciel": "",
+  "propozicie": [
+   {"nazov": "Štartovné", "hodnota": "25 € do 15. 4., 30 € do 15. 6., 35 € na mieste (bez trička)"},
+   {"nazov": "Prihlášky", "hodnota": "cez ZASRUN"},
+   {"nazov": "Časový limit", "hodnota": "5 hodín"},
+   {"nazov": "Kapacita", "hodnota": "50 bežcov"},
+   {"nazov": "Kategórie", "hodnota": "muži a ženy, absolútne poradie"},
+   {"nazov": "Hodnotenie", "hodnota": "1. až 3. miesto muži a ženy"},
+   {"nazov": "Ceny", "hodnota": "vecné ceny pre víťazov"},
+   {"nazov": "Povrch", "hodnota": "lesný chodník a asfalt, niekoľkokrát cez potok"},
+   {"nazov": "Zdravotná služba", "hodnota": "Horská služba Čergov"},
+   {"nazov": "Šatňa a sprcha", "hodnota": "Chata Ride pub"},
+   {"nazov": "Po preteku", "hodnota": "teplý obed"},
+   {"nazov": "Odhlásenie", "hodnota": "po úhrade si organizátor ponechá 50 %"}
+  ],
+  "harmonogram": [
+   {"cas": "7:30–8:30", "popis": "Prezentácia, Chata Ride pub Drienica 553"},
+   {"cas": "8:30", "popis": "Brífing, povinná účasť"},
+   {"cas": "9:00", "popis": "Štart"},
+   {"cas": "cca 14:30", "popis": "Dobeh posledných bežcov"},
+   {"cas": "po dobehu", "popis": "Vyhlásenie výsledkov"}
+  ],
+  "doprava": [
+   {"nazov": "Parkovanie", "hodnota": "pri Ride pube v Drienici"},
+   {"nazov": "Štart a cieľ", "hodnota": "pred chatou Ride pub, autá máš po dobehu hneď pri sebe"}
+  ],
+  "rekordy": {
+   "muzi": {"cas": "2:32:31", "meno": "Július Kaľavský", "klub": "All4run Margecany", "rok": 2025},
+   "zeny": {"cas": "3:22:47", "meno": "Simona Fritz", "klub": "AK Veterán Prešov", "rok": 2024}
+  },
+  "archiv": [
+   {"rocnik": 2026, "datum": "2026-06-27", "v_cieli": 25, "vitaz": {"meno": "Václav Jarčuška", "cas": "2:34:43"}, "vitazka": {"meno": "Marka Šebejová", "cas": "4:36:10"}, "vysledky": "https://zasrun.sk/preteky/cergovsky-umirak-2026"},
+   {"rocnik": 2025, "datum": "2025-06-28", "v_cieli": 40, "vitaz": {"meno": "Július Kaľavský", "cas": "2:32:31"}, "vitazka": {"meno": "Katarína Vitovičová", "cas": "3:26:21"}, "vysledky": "https://zasrun.sk/preteky/cergovsky-umirak-2025"},
+   {"rocnik": 2024, "datum": "2024-06-29", "v_cieli": 31, "vitaz": {"meno": "Július Kaľavský", "cas": "2:45:10"}, "vitazka": {"meno": "Simona Fritz", "cas": "3:22:47"}, "vysledky": "https://zasrun.sk/preteky/cergovsky-umirak-2024"}
+  ],
+  "organizatori": [
+   {"nazov": "OZ Čergovrun", "rola": "Hlavný organizátor"},
+   {"nazov": "Marián Gargalovič", "rola": "Spoluorganizátor"},
+   {"nazov": "BK ZasRun Šarišské Bohdanovce", "rola": "Časomiera a registrácia"}
+  ]
+ }
+]
+</script>
+<script type="application/json" id="data-trate">{
+ "_popis": "Body trás z GPX na ZASRUN, zredukované: [km, šírka, dĺžka, výška m]. Generuje sa z GPX, ručne sa needituje.",
+ "hreben": [[0,49.20393,20.95348,555],[0.203,49.20542,20.95222,565],[0.44,49.20733,20.9509,579],[0.705,49.20943,20.94928,596],[0.974,49.2118,20.94945,608],[1.277,49.21347,20.9526,619],[1.496,49.21412,20.95527,635],[1.803,49.21566,20.95855,652],[2.032,49.21722,20.96049,665],[2.303,49.21849,20.96353,684],[2.498,49.21907,20.96597,700],[2.721,49.21865,20.96888,716],[2.925,49.21846,20.97127,735],[3.148,49.21948,20.97374,745],[3.367,49.22038,20.9762,763],[3.534,49.22112,20.97805,783],[3.701,49.22255,20.9784,799],[3.816,49.22354,20.97877,814],[3.975,49.22479,20.97966,830],[4.112,49.22573,20.98074,847],[4.28,49.2266,20.98121,864],[4.493,49.2256,20.9788,883],[4.731,49.22692,20.97734,897],[4.939,49.22542,20.97601,913],[5.14,49.22451,20.97416,926],[5.291,49.22524,20.97403,947],[5.459,49.22655,20.97495,964],[5.648,49.22814,20.97562,977],[5.779,49.22907,20.97664,988],[5.938,49.22977,20.97839,1003],[6.052,49.23015,20.97977,1020],[6.175,49.23085,20.98104,1038],[6.327,49.23176,20.9825,1051],[6.514,49.23327,20.98349,1064],[6.653,49.23449,20.98349,1082],[6.769,49.23549,20.98389,1099],[6.882,49.23537,20.98496,1111],[6.994,49.23495,20.98633,1131],[7.105,49.23476,20.98779,1150],[7.37,49.23376,20.99104,1148],[7.657,49.23178,20.9935,1129],[7.828,49.23046,20.99434,1136],[7.95,49.23023,20.99595,1118],[8.204,49.22956,20.99925,1101],[8.478,49.22824,21.00214,1084],[8.649,49.22684,21.003,1061],[8.869,49.22518,21.00447,1071],[9.149,49.22281,21.00519,1061],[9.342,49.222,21.00724,1037],[9.596,49.22102,21.01031,1036],[9.807,49.21951,21.01194,1052],[9.927,49.21867,21.01287,1067],[10.113,49.21808,21.01518,1068],[10.266,49.21746,21.01686,1074],[10.552,49.21545,21.01909,1067],[10.791,49.21445,21.02179,1042],[10.987,49.21455,21.02444,1010],[11.222,49.21454,21.02761,984],[11.527,49.21501,21.03129,978],[11.84,49.21739,21.03194,984],[11.973,49.21789,21.03347,1001],[12.132,49.21863,21.03527,1013],[12.361,49.21865,21.03838,978],[12.721,49.21852,21.04319,960],[12.955,49.2172,21.04559,937],[13.224,49.21762,21.04906,936],[13.315,49.21733,21.04998,939],[13.59,49.21882,21.05248,943],[13.712,49.21927,21.05394,961],[13.822,49.21969,21.05527,978],[13.876,49.21994,21.05583,991],[13.96,49.2204,21.05673,1007],[14.17,49.22057,21.05948,1019],[14.364,49.21975,21.0617,992],[14.547,49.21842,21.06302,959],[14.793,49.21704,21.06546,940],[15.093,49.21592,21.06914,922],[15.358,49.21539,21.07266,899],[15.638,49.21435,21.07613,875],[15.908,49.21394,21.07969,860],[16.127,49.21455,21.08254,830],[16.269,49.21465,21.08432,812],[16.284,49.21462,21.08442,810],[16.476,49.2152,21.08685,819],[16.616,49.21588,21.08842,842],[16.697,49.21601,21.08949,860],[16.83,49.21576,21.09126,883],[16.93,49.2163,21.0923,903],[17.034,49.21687,21.09341,923],[17.118,49.2173,21.09432,947],[17.228,49.21781,21.09558,970],[17.339,49.21783,21.09705,992],[17.499,49.2179,21.0992,1008],[17.742,49.21897,21.10199,990],[17.953,49.21911,21.10473,989],[18.162,49.21838,21.1071,984],[18.442,49.21907,21.11072,985],[18.662,49.21966,21.11354,988],[18.898,49.22094,21.11603,990],[19.124,49.22144,21.11881,1005],[19.492,49.21898,21.12183,1010],[19.743,49.21712,21.12373,1003],[19.881,49.21611,21.12473,1019],[19.989,49.21521,21.12517,1034],[20.114,49.21422,21.12549,1047],[20.35,49.21254,21.12622,1054],[20.502,49.21253,21.1283,1021],[20.73,49.2115,21.13095,1004],[20.865,49.21071,21.13226,1022],[21.112,49.20924,21.13471,1026],[21.294,49.20877,21.13701,1039],[21.571,49.20719,21.13959,1032],[21.761,49.20553,21.13971,1043],[21.928,49.20417,21.14061,1054],[22.073,49.20292,21.14112,1069],[22.206,49.20178,21.14152,1082],[22.461,49.20026,21.14412,1068],[22.605,49.19935,21.14546,1084],[22.742,49.19864,21.14683,1098],[23.061,49.19834,21.15112,1089],[23.298,49.19847,21.15431,1066],[23.521,49.19787,21.15713,1047],[23.695,49.19683,21.15885,1049],[24.064,49.19612,21.1637,1042],[24.361,49.19607,21.16772,1029],[24.666,49.1935,21.16902,1025],[24.919,49.19134,21.1699,1037],[25.195,49.18902,21.16916,1045],[25.463,49.18732,21.1716,1037],[25.679,49.18559,21.17287,1054],[25.91,49.18501,21.17587,1031],[26.116,49.18435,21.17851,998],[26.394,49.18245,21.18072,985],[26.678,49.18003,21.18173,967],[26.852,49.17882,21.18321,935],[27.092,49.17726,21.1838,913],[27.109,49.1773,21.18383,904],[27.233,49.17747,21.18225,918],[27.588,49.17679,21.17785,917],[27.855,49.17562,21.17485,925],[27.927,49.17515,21.17422,941],[28.012,49.17464,21.17339,957],[28.103,49.17462,21.17217,973],[28.163,49.17461,21.17136,987],[28.262,49.17437,21.17008,999],[28.439,49.17299,21.16908,990],[28.623,49.17154,21.16805,987],[28.744,49.17076,21.16698,1002],[28.996,49.16886,21.1654,978],[29.276,49.16688,21.16317,990],[29.396,49.16633,21.16178,1004],[29.619,49.16568,21.15894,1014],[29.832,49.16598,21.15611,1027],[29.997,49.16609,21.15406,1048],[30.247,49.16509,21.15111,1043],[30.58,49.16295,21.14819,1032],[30.761,49.16302,21.14579,1046],[30.897,49.1633,21.14402,1061],[31.086,49.1633,21.14162,1056],[31.239,49.16386,21.1397,1017],[31.447,49.16453,21.13706,988],[31.604,49.16415,21.13565,951],[31.741,49.16362,21.13564,940]],
+ "umirak": [[0,49.13712,21.11198,495],[0.268,49.13944,21.11268,518],[0.603,49.14231,21.11368,529],[0.891,49.14401,21.11662,549],[1.129,49.14534,21.11912,564],[1.371,49.14745,21.11933,593],[1.558,49.14905,21.11863,623],[1.735,49.1505,21.11952,627],[2.002,49.15237,21.12181,653],[2.154,49.15356,21.12229,676],[2.314,49.15493,21.12171,689],[2.481,49.1564,21.12136,721],[2.539,49.1569,21.12128,735],[2.668,49.15803,21.12158,759],[2.768,49.15804,21.12217,765],[2.853,49.15767,21.12295,772],[2.979,49.15695,21.12425,788],[3.139,49.1574,21.12586,820],[3.312,49.15874,21.12686,837],[3.417,49.15954,21.12745,854],[3.532,49.1604,21.12823,862],[3.666,49.16158,21.12797,891],[3.779,49.16232,21.12892,890],[3.902,49.16296,21.13024,912],[4,49.16307,21.13151,914],[4.134,49.16303,21.13328,919],[4.258,49.16305,21.13493,929],[4.351,49.16317,21.13592,933],[4.559,49.1647,21.13604,957],[4.773,49.16404,21.13874,996],[4.88,49.16434,21.14012,990],[5.108,49.16623,21.14071,972],[5.349,49.16548,21.14373,968],[5.525,49.16482,21.1459,970],[5.687,49.16489,21.14794,965],[5.834,49.16613,21.14851,963],[6.021,49.16769,21.14804,955],[6.24,49.16923,21.14622,940],[6.411,49.17064,21.14593,912],[6.563,49.17169,21.1462,881],[6.699,49.17236,21.14705,869],[6.81,49.17289,21.14734,859],[6.975,49.17406,21.14597,832],[7.146,49.17501,21.14416,804],[7.332,49.17562,21.14182,772],[7.519,49.17719,21.14099,752],[7.664,49.17843,21.14051,745],[7.919,49.18063,21.1397,739],[8.071,49.18154,21.14117,714],[8.214,49.18256,21.14206,698],[8.375,49.18371,21.14081,691],[8.531,49.1841,21.13879,686],[8.656,49.18494,21.13769,684],[8.851,49.18512,21.13519,674],[8.998,49.18549,21.13328,682],[9.131,49.18561,21.1316,683],[9.26,49.18593,21.13003,666],[9.443,49.18533,21.12782,656],[9.614,49.18499,21.12558,640],[9.777,49.18533,21.12346,642],[10.017,49.18622,21.12046,633],[10.158,49.18621,21.11877,648],[10.363,49.18726,21.11674,621],[10.425,49.18746,21.11596,624],[10.591,49.18802,21.11391,601],[10.724,49.18818,21.11215,602],[10.84,49.18908,21.11246,612],[11.111,49.19148,21.11213,644],[11.312,49.1927,21.11401,645],[11.5,49.19354,21.11623,669],[11.595,49.19394,21.11734,680],[11.72,49.19446,21.11883,679],[11.89,49.19567,21.1202,697],[12.058,49.19701,21.12105,712],[12.219,49.19831,21.12191,731],[12.394,49.19977,21.12276,739],[12.478,49.20043,21.12324,741],[12.559,49.20096,21.12394,738],[12.662,49.20161,21.1249,745],[12.742,49.20189,21.12588,758],[12.828,49.20224,21.12688,789],[12.909,49.20233,21.12794,802],[12.971,49.20249,21.12872,812],[13.023,49.20257,21.12937,834],[13.139,49.20343,21.1302,845],[13.219,49.20388,21.131,849],[13.274,49.20415,21.13155,859],[13.361,49.20447,21.13254,886],[13.424,49.20483,21.13318,893],[13.514,49.2053,21.13382,914],[13.587,49.2054,21.13287,931],[13.711,49.20609,21.13166,943],[13.836,49.20685,21.13283,972],[13.999,49.20734,21.13486,994],[14.13,49.20764,21.13657,991],[14.236,49.20732,21.13789,1013],[14.318,49.20728,21.13896,1025],[14.411,49.20683,21.13947,1029],[14.585,49.20531,21.13976,1037],[14.851,49.20311,21.14097,1069],[15.063,49.20139,21.14203,1073],[15.276,49.20014,21.14423,1068],[15.477,49.19878,21.14598,1085],[15.783,49.1982,21.15002,1084],[15.996,49.19851,21.1529,1067],[16.196,49.19835,21.15563,1046],[16.386,49.19743,21.15777,1039],[16.556,49.19657,21.15962,1037],[16.779,49.19606,21.16251,1037],[17.083,49.19617,21.16667,1028],[17.237,49.19541,21.16819,1018],[17.488,49.19324,21.16899,1018],[17.655,49.19184,21.16967,1024],[17.903,49.18972,21.16901,1035],[18.039,49.18859,21.16933,1032],[18.281,49.18716,21.17167,1034],[18.466,49.18564,21.17268,1043],[18.761,49.18489,21.17651,1017],[19.03,49.18375,21.17971,984],[19.197,49.18239,21.18062,981],[19.482,49.17997,21.18161,966],[19.65,49.17881,21.18305,940],[19.818,49.1776,21.18413,927],[19.887,49.17733,21.18371,932],[20.028,49.17741,21.18185,942],[20.173,49.17677,21.18025,938],[20.31,49.17653,21.17843,937],[20.49,49.17646,21.17603,927],[20.675,49.17522,21.17436,946],[20.862,49.17461,21.17219,985],[21.065,49.17404,21.16967,992],[21.226,49.1727,21.1689,985],[21.402,49.17142,21.16765,988],[21.619,49.16983,21.166,977],[21.921,49.16743,21.16421,974],[22.216,49.16607,21.16077,1004],[22.475,49.1658,21.15731,1021],[22.665,49.16635,21.15487,1043],[22.815,49.16582,21.15305,1042],[22.971,49.16516,21.15135,1023],[23.192,49.16355,21.14965,1017],[23.405,49.16294,21.14697,1030],[23.535,49.1628,21.14532,1034],[23.721,49.16188,21.1433,1016],[23.879,49.16108,21.1417,989],[24.102,49.16219,21.1392,962],[24.285,49.16303,21.13709,949],[24.431,49.16363,21.1354,932],[24.532,49.16296,21.13551,928],[24.699,49.16283,21.13346,916],[24.866,49.16278,21.13119,882],[24.989,49.16232,21.1311,860],[25.166,49.16156,21.13313,842],[25.302,49.16091,21.13467,818],[25.537,49.16081,21.13155,779],[25.723,49.15932,21.13056,758],[25.971,49.15763,21.12838,738],[26.17,49.15596,21.12774,708],[26.441,49.15374,21.12629,674],[26.643,49.15297,21.1239,654],[26.819,49.15223,21.12196,663],[27.173,49.14974,21.11905,619],[27.401,49.14788,21.11935,593],[27.78,49.14474,21.11844,557],[28.188,49.14248,21.11407,528],[28.655,49.13851,21.11272,499],[28.854,49.13726,21.11149,494],[28.897,49.13725,21.11196,493]]
+}
+</script>
+<script type="application/json" id="data-vybehy">[
+ {"id": "2026-11-07-mincol", "nazov": "Výbeh na Minčol", "zaciatok": "2026-11-07T09:00", "miesto": "Farma Kamenica", "km": 14, "stupanie": 650, "poznamka": "", "odkaz": "https://www.strava.com/clubs/CergovRun", "ukazka": true},
+ {"id": "2026-11-22-lysa", "nazov": "Z Drienice na Lysú a späť", "zaciatok": "2026-11-22T08:30", "miesto": "Ride pub Drienica", "km": 12, "stupanie": 600, "poznamka": "", "odkaz": "https://www.strava.com/clubs/CergovRun", "ukazka": true},
+ {"id": "2026-12-31-silvester", "nazov": "Silvestrovský výbeh", "zaciatok": "2026-12-31T10:00", "miesto": "Hotel Šport, Lysá", "km": null, "stupanie": null, "poznamka": "voľné tempo", "odkaz": "https://www.strava.com/clubs/CergovRun", "ukazka": true}
+]
+</script>
+<script>
+/* Jediné miesto, odkiaľ web berie obsah. Stránky nevedia, kto obsah spravuje.
+   Dnes: JSON súbory v data/ (v zostavenom prototype vložené priamo do stránky ako <script type="application/json" id="data-…">).
+   Neskôr: redakcia (WordPress REST API alebo vlastný jednoduchý CRUD) vráti rovnaké JSON a zmení sa len OBSAH_ZDROJ.
+   Štruktúra každého súboru je popísaná v data/README.md. */
+const OBSAH_ZDROJ = "data/";
+const _obsahCache = {};
+function obsah(meno) {
+ if (!_obsahCache[meno]) {
+  const vlozene = document.getElementById("data-" + meno);
+  _obsahCache[meno] = vlozene
+   ? Promise.resolve(JSON.parse(vlozene.textContent))
+   : fetch(OBSAH_ZDROJ + meno + ".json").then(r => { if (!r.ok) throw new Error("Obsah " + meno + ": " + r.status); return r.json() });
+ }
+ return _obsahCache[meno];
+}
+/* "2026-10-24" -> "24. 10. 2026"; prázdny dátum vráti náhradný text */
+function datumSk(iso, nahrada = "") {
+ if (!iso) return nahrada;
+ const [r, m, d] = iso.slice(0, 10).split("-").map(Number);
+ return `${d}. ${m}. ${r}`;
+}
+/* text z obsahu do HTML (obsah článkov je už HTML, ostatné polia sú čistý text) */
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+</script>
+<script>
+/* Projekcia: lon/lat -> súradnice viewBoxu 1000 × 765 (1 jednotka ≈ 25 m) */
+const LON0=20.90,LON1=21.24,LAT0=49.10,LAT1=49.27;
+const KX=72.7,KY=111.2,W=1000,H=765;
+const SX=W/((LON1-LON0)*KX);
+const px=lon=>(lon-LON0)*KX*SX, py=lat=>(LAT1-lat)*KY*SX;
+
+/* Vrstevnice sú predpočítaný obrázok vrstevnice.svg (vrstevnice-gen.html), tu sa kreslia len trasy a vrcholy */
+const routeD=t=>t.map((p,i)=>(i?"L":"M")+px(p[2]).toFixed(1)+" "+py(p[1]).toFixed(1)).join("");
+/* mobilné menu: burger otvorí a zavrie riadok s odkazmi, klik na odkaz ho zavrie */
+const hlavicka=document.querySelector("header.top"),burger=hlavicka.querySelector(".burger");
+const menu=o=>{hlavicka.classList.toggle("open",o);burger.setAttribute("aria-expanded",o)};
+burger.addEventListener("click",()=>menu(!hlavicka.classList.contains("open")));
+hlavicka.querySelectorAll("nav a").forEach(a=>a.addEventListener("click",()=>menu(false)));
+/* úplne hore sú trasy celé, pri scrollovaní sa kreslia od štartu */
+addEventListener("scroll",()=>document.getElementById("topoWrap").classList.toggle("scrolled",scrollY>4),{passive:true});
+/* 5 najvyšších vrcholov na trase hlavného preteku, oficiálne výšky; poloha = najvyšší bod GPX pri vrchole (odhad) */
+const PEAKS=[[7.105,"MINČOL","1 157",-6],[22.742,"VEĽKÁ JAVORINA","1 098",-6],[30.897,"LYSÁ","1 068",14],[10.266,"DVORISKÁ","1 057",-6],[20.35,"SOLISKO","1 057",14]];
+const startDot=(t,c)=>`<circle class="${c}" cx="${px(t[0][2]).toFixed(1)}" cy="${py(t[0][1]).toFixed(1)}" r="3"/>`;
+/* pozadie: hlavný pretek (výkladná skriňa) výrazne, druhý tlmene */
+function pozadie(hlavna,druha){
+ document.getElementById("rHreben").setAttribute("d",routeD(hlavna));
+ document.getElementById("rUmirak").setAttribute("d",routeD(druha));
+ for(const [id,c] of [["rHreben","ghost ghost-h"],["rUmirak","ghost ghost-u"]]){const r=document.getElementById(id),g=r.cloneNode();g.removeAttribute("id");g.removeAttribute("pathLength");g.setAttribute("class",c);r.after(g)}
+ document.getElementById("peaks").innerHTML=startDot(hlavna,"start")+startDot(druha,"start2")+PEAKS.map(([km,name,h,dy])=>{const p=hlavna.reduce((b,q)=>Math.abs(q[0]-km)<Math.abs(b[0]-km)?q:b);return `<circle class="peak" cx="${px(p[2]).toFixed(1)}" cy="${py(p[1]).toFixed(1)}" r="3.2"/><text class="peakt" x="${(px(p[2])+8).toFixed(1)}" y="${(py(p[1])+dy).toFixed(1)}">${name} ${h} M</text>`}).join("");
+}
+
+/* Obsah úvodu: preteky, novinky a galéria z data/*.json (načíta obsah.js) */
+const kartaPreteku=p=>{const k=p.karta,z=k.zvyraznenie,znak=[p.itra?"ITRA "+p.itra:"",p.liga].filter(Boolean).join(" · ");return `<article class="race${p.hlavny?" main":""}">
+ <div class="meta"><span class="lab">${esc(p.mesiac)}</span><span>${esc(p.miesto)}</span>${znak?`<span>${esc(znak)}</span>`:""}</div>
+ <h3>${esc(p.nazov)}</h3>
+ <div class="stats">${k.cisla.map(c=>`<div><b>${esc(c.hodnota)}</b><span>${esc(c.popis)}</span></div>`).join("")}</div>
+ <div class="prof" id="prof-${p.slug}"></div>
+ <div class="win"><span>${esc(z.nadpis)} · <b>${esc(z.meno)}</b>, ${esc(z.doplnok)}</span><span><b>${esc(z.cas)}</b> · ${esc(z.tempo)}</span></div>
+ <div class="acts"><a class="cta" href="#pretek-${p.slug}">Detail preteku</a><a class="ghost" href="${esc(k.vysledky.url)}">Výsledky ${k.vysledky.rok}</a><a class="ghost" href="${esc(p.gpx)}">GPX trate</a></div>
+</article>`};
+Promise.all([obsah("trate"),obsah("preteky"),obsah("novinky"),obsah("galeria")]).then(([T,P,N,G])=>{
+ const preteky=P.slice().sort((a,b)=>(b.hlavny?1:0)-(a.hlavny?1:0));
+ pozadie(T[preteky[0].trasa],T[(preteky[1]||preteky[0]).trasa]);
+ document.getElementById("uPreteky").innerHTML=preteky.map(kartaPreteku).join("");
+ preteky.forEach(p=>profile(document.getElementById("prof-"+p.slug),T[p.trasa]));
+ const nove=N.slice().sort((a,b)=>(a.ukazka-b.ukazka)||(b.datum||"").localeCompare(a.datum||"")).slice(0,3);
+ document.getElementById("uNovinky").innerHTML=nove.map(c=>`<a href="#novinky-${c.slug}"><span class="lab">${datumSk(c.datum,"Ukážka")} · ${esc(c.kategoria)}</span><h3>${esc(c.nazov)}</h3><p>${esc(c.perex)}</p></a>`).join("");
+ document.getElementById("uGaleriaNazov").textContent=G.nazov;
+ document.getElementById("uGaleria").innerHTML=G.fotky.slice(0,5).map(f=>`<figure><img src="${esc(f.subor)}" alt="${esc(f.popis)}"${f.vyrez?` style="object-position:${esc(f.vyrez)}"`:""} loading="lazy"><figcaption>${esc(f.titulok)}</figcaption></figure>`).join("");
+});
+
+/* Prototyp: pripojenie Stravy zatiaľ nefunguje, tlačidlo len vysvetlí ďalší krok */
+document.querySelectorAll(".strava").forEach(b=>b.addEventListener("click",()=>{
+ const n=b.nextElementSibling;if(n)n.textContent="V prototype je pripojenie len naznačené. Na ostrom webe ťa tlačidlo presmeruje na Stravu, kde dáš súhlas. Jedno pripojenie platí pre obe výzvy.";
+}));
+
+/* Výškové profily, spoločná mierka 400–1 200 m */
+function profile(el,t){
+ const km=t[t.length-1][0],E0=400,E1=1200;
+ const X=k=>k/km*1000,Y=e=>(1-(e-E0)/(E1-E0))*100;
+ const line=t.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[3]).toFixed(2)).join("");
+ const mx=t.reduce((m,p)=>p[3]>m[3]?p:m);
+ let g="";for(const e of [600,800,1000])g+=`<div class="g" style="top:${Y(e)}%"><span>${e.toLocaleString("sk")} m</span></div>`;
+ el.innerHTML=g+`<svg viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true"><path class="area" d="${line}L1000 100L0 100Z"/><path class="ln" pathLength="1" d="${line}"/></svg>`+
+  `<div class="top" style="left:${X(mx[0])/10}%;top:${Y(mx[3])}%">${mx[3].toLocaleString("sk")} m</div>`+
+  `<div class="kms"><span>0 km</span><span>${Math.round(km/2)} km</span><span>${km.toFixed(1).replace(".",",")} km</span></div>`;
+ el.setAttribute("role","img");el.setAttribute("aria-label",`Výškový profil, ${km.toFixed(1)} km, najvyšší bod ${mx[3]} m`);
+}
+</script>
+
+<section class="view" id="v-pretek" hidden>
+<div class="wrap">
+ <div class="switch" id="switch" role="tablist" aria-label="Preteky"></div>
+</div>
+
+<main>
+ <section class="hero wrap">
+  <div>
+   <span class="lab" id="kicker"></span>
+   <h1 id="name"></h1>
+   <p class="sar" id="tagline"></p>
+   <div class="acts">
+    <a class="cta" id="reg" href="#">Registrácia na ZASRUN</a>
+    <a class="ghost" id="gpx" href="#">Stiahnuť GPX</a>
+   </div>
+   <p class="status" id="status"></p>
+   <div class="certs" id="certs"></div>
+  </div>
+  <div class="stats" id="stats"></div>
+ </section>
+
+ <section class="band wrap" id="trat">
+  <div class="shead"><h2>Trať</h2><span class="lab">Prejdi myšou po mape alebo profile</span></div>
+  <div class="mapwrap">
+   <svg class="map" id="map" role="img" aria-label="Mapa trate s občerstvovačkami"></svg>
+   <div class="read" id="read" aria-live="polite"></div>
+   <div class="legend">Vrstevnice po 20 m · terén ilustračný</div>
+  </div>
+  <div class="prof" id="prof"></div>
+  <div class="slider"><label for="pos">Posúvaj po trati</label><input type="range" id="pos" min="0" max="100" value="0"></div>
+  <div class="aids" id="aids"></div>
+ </section>
+
+ <section class="band wrap" id="info">
+  <div class="two">
+   <div>
+    <div class="shead"><h2>Propozície</h2></div>
+    <dl id="prop"></dl>
+   </div>
+   <div>
+    <div class="shead"><h2>Harmonogram</h2><span class="lab" id="hdate"></span></div>
+    <div class="time" id="harm"></div>
+    <div class="shead" style="margin-top:clamp(48px,7vh,72px)"><h2>Doprava</h2></div>
+    <dl id="trans"></dl>
+   </div>
+  </div>
+ </section>
+
+ <section class="band wrap" id="vysledky">
+  <div class="shead"><h2>Traťové rekordy</h2><span class="lab">z výsledkov na ZASRUN</span></div>
+  <div class="recs" id="recs"></div>
+  <div class="tw"><table><thead><tr><th>Ročník</th><th>Termín</th><th>V cieli</th><th>Víťaz</th><th>Víťazka</th><th></th></tr></thead><tbody id="arch"></tbody></table></div>
+  <p class="note">Archív obsahuje ročníky, ktorých výsledky sú na ZASRUN. Starší ročníky doplníme, keď ich klub nájde.</p>
+ </section>
+
+ <section class="band wrap" id="partneri">
+  <div class="shead"><h2>Organizátori a partneri</h2></div>
+  <div class="orgs" id="orgs"></div>
+ </section>
+</main>
+
+<footer class="wrap">
+ <div class="foot">
+  <span>Čergovrun · Čergov v nohách. Šicko do kopca.</span>
+  <span id="contact"></span>
+  <a href="#">Späť na úvod</a>
+ </div>
+</footer>
+
+</section>
+<section class="view" id="v-novinky" hidden>
+
+<main class="wrap" id="view"></main>
+
+<footer class="wrap">
+ <div class="foot">
+  <span>Čergovrun · Čergov v nohách. Šicko do kopca.</span>
+  <a href="#">Späť na úvod</a>
+ </div>
+</footer>
+
+</section>
+<section class="view" id="v-klub" hidden>
+
+<main>
+ <section class="hero wrap">
+  <span class="lab">O klube · OZ Čergovrun</span>
+  <h1>Čergov<em>Run</em></h1>
+  <span class="sar">Šicko do kopca.</span>
+  <p id="kUvod"></p>
+  <div class="nums" id="kCisla"></div>
+ </section>
+
+ <figure class="photo wrap" id="kFotka"></figure>
+
+ <section class="band wrap" id="klub-pribeh">
+  <div class="two">
+   <div>
+    <div class="shead"><h2>Náš príbeh</h2><span class="lab" id="kOd"></span></div>
+    <div id="kPribeh"></div>
+   </div>
+   <div id="klub-vybehy">
+    <div class="shead"><h2>Spoločné výbehy</h2><span class="lab" id="kVybehyLab">Najbližšie</span></div>
+    <p class="txt">Pevný rozvrh nemáme. Keď sa ide hore, dáme vedieť a kto môže, pridá sa.</p>
+    <div class="events" id="kVybehy"></div>
+    <div class="links" id="kOdkazy"></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="band wrap" id="klub-clenstvo">
+  <div class="two">
+   <div>
+    <div class="shead"><h2>Podpora a rozvoj behu v Čergove</h2></div>
+    <p class="txt" id="kPoslanie"></p>
+   </div>
+   <div class="contact" id="kKontakt"></div>
+  </div>
+ </section>
+
+ <section class="band wrap" id="klub-dane">
+  <div class="percent">
+   <div class="big">2 %</div>
+   <div>
+    <h2>Pošli nám 2 % z dane</h2>
+    <p class="txt">Nestojí ťa to nič a pomôže to pretekom: značeniu trate, občerstvovačkám aj cenám.</p>
+    <ol>
+     <li>Vyplň <b>Vyhlásenie o poukázaní podielu zaplatenej dane</b> alebo príslušnú časť daňového priznania.</li>
+     <li>Ako prijímateľa uveď <b>OZ Čergovrun</b>, IČO: <span id="kIco"></span></li>
+     <li>Vyhlásenie odovzdaj na daňovom úrade do 30. apríla.</li>
+    </ol>
+   </div>
+  </div>
+ </section>
+
+ <section class="band wrap" id="podpora" hidden></section>
+</main>
+
+<footer class="wrap">
+ <div class="foot">
+  <span>Čergovrun · Čergov v nohách. Šicko do kopca.</span>
+  <a href="#">Späť na úvod</a>
+ </div>
+</footer>
+
+</section>
+
+<template id="css-pretek">
+/* Layout: detail preteku. Hore prepínač pretekov, potom veľký názov, mapa s trasou a profil prepojené jedným kurzorom,
+   pod tým propozície, harmonogram, rekordy a archív. Rovnaká paleta a písmo ako úvodná stránka. */
+:root{
+ color-scheme:dark;
+ --bg:#1f2820;--panel:#273228;--line:#364237;--rule:#4a584a;
+ --ink:#ebeae0;--mute:#9ba596;--faint:#647062;--lime:#5fd542;
+ --display:"Noto Serif Display",Georgia,"Times New Roman",serif;
+ --body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.6 var(--body);font-variant-numeric:tabular-nums;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:300;margin:0;text-wrap:balance}
+.lab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:2px}
+
+html{scroll-padding-top:72px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border-bottom:1px solid rgb(54 66 55 / .6)}
+header.top .bar{padding-block:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font:400 22px var(--display);text-decoration:none}
+nav{display:flex;gap:6px 26px;flex-wrap:wrap}
+nav a{font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--mute);padding:10px 0}
+nav a:hover,nav a[aria-current="page"]{color:var(--ink)}
+
+.switch{display:flex;gap:28px;border-bottom:1px solid var(--line);margin-top:clamp(40px,7vh,72px)}
+.switch a{font:300 19px var(--display);color:var(--mute);text-decoration:none;padding:12px 0;border-bottom:1px solid transparent;margin-bottom:-1px}
+.switch a[aria-current="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px 64px;align-items:end;margin-top:clamp(24px,4vh,40px);padding:clamp(28px,4vw,52px) clamp(18px,3vw,40px);background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border:1px solid rgb(235 234 224 / .07);border-radius:4px}
+@media(max-width:860px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(46px,7.4vw,104px);line-height:.95;letter-spacing:-.02em}
+.hero h1.haslogo{margin-top:14px}
+.hero h1.haslogo img{display:block;width:min(100%,500px);height:auto}
+.hero .sar{font:italic 300 clamp(18px,1.8vw,24px)/1.3 var(--display);color:var(--mute);margin-top:14px;max-width:44ch}
+.acts{display:flex;gap:14px 26px;flex-wrap:wrap;align-items:center;margin-top:24px}
+.cta{display:inline-flex;align-items:center;background:var(--lime);color:#13200f;text-decoration:none;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:11px 18px;border-radius:999px}
+.cta:hover{background:#7be062}
+.ghost{display:inline-flex;text-decoration:none;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:10px 0;border-bottom:1px solid var(--rule)}
+.ghost:hover{border-color:var(--ink)}
+.status{font-size:12px;color:var(--mute);margin-top:14px}
+/* liga a ITRA body */
+.certs{display:flex;flex-wrap:wrap;gap:14px 28px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.certs:empty{display:none}
+.cert{display:flex;align-items:center;gap:12px;min-width:0}
+.cert span{font-size:12px;color:var(--mute);line-height:1.35}
+.cert strong{display:block;color:var(--ink);font-weight:500;font-size:13px}
+.cert .itra{flex:none;display:inline-flex;align-items:baseline;gap:5px;background:#e2dd2c;color:#fff;border-radius:5px;padding:5px 9px;font:500 13px/1 var(--body);letter-spacing:.02em}
+.cert .itra b{font-weight:500;font-size:15px}
+/* logo SSA: svetlá verzia s priehľadným pozadím (z originálu SSA.webp) */
+.cert .ssa{flex:none;display:block;height:36px;width:auto}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)}
+.stats div{padding:16px 12px 14px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.stats div:nth-child(even){padding-left:16px;border-left:1px solid var(--line)}
+.stats b{font:300 clamp(28px,3vw,40px)/1.05 var(--display)}
+.stats span{font-size:11px;color:var(--mute)}
+
+section.band{margin-top:clamp(40px,7vh,88px);padding-block:clamp(28px,4vw,52px);padding-left:max(clamp(18px,3vw,40px),env(safe-area-inset-left,0px));padding-right:max(clamp(18px,3vw,40px),env(safe-area-inset-right,0px));background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border:1px solid rgb(235 234 224 / .07);border-radius:4px}
+.shead{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:clamp(24px,4vh,40px)}
+.shead h2{font-size:clamp(30px,3.8vw,50px);line-height:1}
+
+/* mapa a profil */
+.mapwrap{position:relative;background:var(--panel);border-radius:2px;overflow:hidden}
+.mapwrap svg{display:block;width:100%;height:auto;max-height:68vh;touch-action:none}
+.map .minor{stroke:var(--ink);stroke-opacity:.08;stroke-width:.7;fill:none}
+.map .major{stroke:var(--ink);stroke-opacity:.2;stroke-width:1;fill:none}
+.map .halo{stroke:var(--bg);stroke-opacity:.6;stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.map .trk{stroke:var(--lime);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.map .aid circle{fill:var(--bg);stroke:var(--ink);stroke-width:2}
+.map .aid text,.map .pt text{fill:var(--ink);font:500 15px var(--body);paint-order:stroke;stroke:var(--panel);stroke-width:4px}
+.map .pt circle{fill:var(--lime)}
+.map .cur{fill:var(--ink);stroke:var(--bg);stroke-width:3}
+.read{position:absolute;left:14px;top:14px;background:rgb(31 40 32 / .85);border:1px solid var(--line);border-radius:2px;padding:8px 12px;font-size:12px;color:var(--mute);pointer-events:none}
+.read b{font:300 22px var(--display);color:var(--ink);margin-right:6px}
+.legend{position:absolute;right:14px;bottom:12px;font-size:10px;color:var(--faint);letter-spacing:.08em}
+.prof{position:relative;height:190px;margin-top:34px;touch-action:none;cursor:crosshair}
+.prof svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.prof .area{fill:var(--ink);fill-opacity:.07}
+.prof .ln{fill:none;stroke:var(--lime);stroke-width:1.6;vector-effect:non-scaling-stroke}
+.prof .g{position:absolute;left:0;right:0;border-top:1px dashed var(--line);font-size:10px;color:var(--faint);pointer-events:none}
+.prof .g span{position:absolute;right:0;top:-15px}
+.prof .aidl{position:absolute;top:-26px;bottom:0;border-left:1px dashed var(--mute);pointer-events:none}
+.prof .aidl span{position:absolute;top:0;left:6px;font-size:10px;letter-spacing:.06em;color:var(--ink);white-space:nowrap}
+.prof .aidl.r span{left:auto;right:6px}
+.prof .curl{position:absolute;top:0;bottom:0;border-left:1px solid var(--ink);pointer-events:none}
+.prof .kms{position:absolute;left:0;right:0;bottom:-20px;display:flex;justify-content:space-between;font-size:10px;color:var(--faint)}
+.slider{display:flex;align-items:center;gap:14px;margin-top:34px}
+.slider input{flex:1;accent-color:var(--lime);min-height:32px}
+.slider label{font-size:11px;color:var(--mute);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.aids{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;border-top:1px solid var(--line);margin-top:28px}
+.aids div{padding:14px 14px 14px 0;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:baseline;min-width:0}
+.aids b{font:300 26px var(--display);min-width:3.2ch}
+.aids span{color:var(--mute);font-size:12px}
+.aids span strong{color:var(--ink);font-weight:500;display:block;font-size:13px}
+
+/* propozície, harmonogram */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(40px,6vw,80px)}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+dl{margin:0;display:grid;grid-template-columns:minmax(110px,.42fr) minmax(0,1fr);border-top:1px solid var(--line)}
+dt,dd{margin:0;padding:12px 0;border-bottom:1px solid var(--line)}
+dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);padding-right:14px}
+dd{font-size:13px}
+.time{border-top:1px solid var(--line)}
+.time div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;padding:13px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.time b{font:300 22px var(--display)}
+.time span{font-size:13px}
+.note{font-size:13px;color:var(--mute);max-width:62ch;margin:18px 0 0}
+
+/* rekordy a archív */
+.recs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(24px,4vw,56px)}
+@media(max-width:640px){.recs{grid-template-columns:1fr}}
+.rec{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:6px}
+.rec b{font:300 clamp(52px,7vw,92px)/1 var(--display);letter-spacing:-.02em}
+.rec span{color:var(--mute);font-size:13px}
+.rec span strong{color:var(--ink);font-weight:500}
+.tw{overflow-x:auto;margin-top:clamp(40px,6vh,64px)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:620px}
+th,td{padding:12px 10px 12px 0;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+td.y{font:300 22px var(--display)}
+td small{color:var(--mute);margin-left:6px}
+td a{text-decoration:none;border-bottom:1px solid var(--rule)}
+td a:hover{border-color:var(--ink)}
+
+.orgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.orgs div{border:1px solid var(--line);border-radius:2px;padding:18px;display:flex;flex-direction:column;gap:6px;min-height:110px}
+.orgs b{font:300 22px var(--display)}
+.orgs span{font-size:12px;color:var(--mute)}
+.orgs .empty{border-style:dashed;justify-content:center;align-items:center;color:var(--faint);text-align:center}
+
+footer{padding-block:clamp(80px,14vh,150px) 40px}
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px;font-size:12px;color:var(--mute)}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</template>
+<template id="css-novinky">
+/* Layout: archív noviniek (ako WordPress Články) a šablóna jedného článku v tom istom súbore.
+   Archív: najnovší článok veľký s fotkou, ostatné v mriežke, filter podľa kategórie. Článok: fotka, nadpis, text úzky ~62 znakov. */
+:root{
+ color-scheme:dark;
+ --bg:#1f2820;--panel:#273228;--line:#364237;--rule:#4a584a;
+ --ink:#ebeae0;--mute:#9ba596;--faint:#647062;--lime:#5fd542;
+ --display:"Noto Serif Display",Georgia,"Times New Roman",serif;
+ --body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:72px;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.6 var(--body);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:300;margin:0;text-wrap:balance}
+.lab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:2px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border-bottom:1px solid rgb(54 66 55 / .6)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:10px}
+.brand{font:400 22px var(--display);text-decoration:none}
+nav{display:flex;gap:6px 26px;flex-wrap:wrap}
+nav a{font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--mute);padding:10px 0}
+nav a:hover,nav a[aria-current="page"]{color:var(--ink)}
+
+/* archív */
+.head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;padding-block:clamp(56px,10vh,110px) 18px;border-bottom:1px solid var(--line)}
+.head h1{font-size:clamp(52px,8vw,112px);line-height:.92;letter-spacing:-.02em}
+.filters{display:flex;gap:22px;flex-wrap:wrap}
+.filters button{background:none;border:0;border-bottom:1px solid transparent;color:var(--mute);font:400 13px var(--body);letter-spacing:.06em;padding:8px 0;cursor:pointer}
+.filters button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.lead{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:end;padding-block:clamp(36px,6vh,56px);border-bottom:1px solid var(--line);text-decoration:none}
+@media(max-width:820px){.lead{grid-template-columns:1fr}}
+.ph{position:relative;aspect-ratio:3/2;max-width:100%;background:var(--panel);overflow:hidden;border-radius:2px}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.ph.topo{background:var(--panel) repeating-radial-gradient(circle at 30% 70%,transparent 0 16px,rgb(235 234 224 / .07) 16px 17px)}
+a:hover .ph img{transform:scale(1.03)}
+.lead h2{font-size:clamp(32px,4vw,54px);line-height:1.02;margin:12px 0 14px}
+.lead p,.card p{margin:0;color:var(--mute);max-width:46ch}
+.more{display:inline-block;margin-top:18px;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);padding-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(24px,3vw,40px);padding-top:clamp(36px,6vh,56px)}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{display:flex;flex-direction:column;gap:10px;text-decoration:none;min-width:0}
+.card h3{font-size:24px;line-height:1.15;transition:color .2s}
+.card:hover h3,.lead:hover h2{color:var(--lime)}
+.empty{color:var(--mute);padding:40px 0}
+
+/* článok */
+.post{padding-top:clamp(40px,7vh,80px)}
+.back{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);text-decoration:none}
+.back:hover{color:var(--ink)}
+.post h1{font-size:clamp(40px,6vw,84px);line-height:.98;letter-spacing:-.015em;max-width:16ch;margin:22px 0 18px}
+.post .meta{display:flex;gap:6px 18px;flex-wrap:wrap}
+.post .ph{margin-top:clamp(28px,5vh,48px);aspect-ratio:16/8}
+.body{max-width:62ch;margin:clamp(32px,5vh,56px) auto 0;font-size:16px;line-height:1.75}
+.body p{margin:0 0 1.1em}
+.body .perex{font:300 22px/1.45 var(--display);color:var(--ink)}
+.body h2{font-size:28px;margin:1.6em 0 .6em}
+.body ol{padding-left:1.2em;margin:0 0 1.1em}
+.body li{margin-bottom:.35em}
+.body li b{font-weight:500}
+.body a{color:var(--lime)}
+.related{margin-top:clamp(40px,7vh,88px);padding-top:16px}
+/* bloky ako matné sklo nad vrstevnicami */
+.lead,.grid,.post,.related{padding-inline:clamp(18px,3vw,40px);padding-bottom:clamp(28px,4vw,48px);background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border:1px solid rgb(235 234 224 / .07);border-radius:4px}
+.lead{border-bottom:1px solid rgb(235 234 224 / .07);margin-top:24px}
+.grid{margin-top:16px}
+.post{margin-top:clamp(24px,4vh,40px)}
+.related .grid{background:none;-webkit-backdrop-filter:none;backdrop-filter:none;border:0;padding:16px 0 0;margin:0}
+
+footer{padding-block:clamp(80px,14vh,150px) 40px}
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px;font-size:12px;color:var(--mute)}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</template>
+<template id="css-klub">
+/* Layout: O klube. Veľký nadpis a čísla, cez celú šírku jedna spoločná fotka, potom príbeh, spoločné výbehy,
+   ako sa pridať (kontakt) a 2 % dane. Rovnaká paleta a písmo ako ostatné stránky. */
+:root{
+ color-scheme:dark;
+ --bg:#1f2820;--panel:#273228;--line:#364237;--rule:#4a584a;
+ --ink:#ebeae0;--mute:#9ba596;--faint:#647062;--lime:#5fd542;
+ --display:"Noto Serif Display",Georgia,"Times New Roman",serif;
+ --body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:72px;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.6 var(--body);font-variant-numeric:tabular-nums;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:300;margin:0;text-wrap:balance}
+.lab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:2px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border-bottom:1px solid rgb(54 66 55 / .6)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:10px}
+.brand{font:400 22px var(--display);text-decoration:none}
+nav{display:flex;gap:6px 26px;flex-wrap:wrap}
+nav a{font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--mute);padding:10px 0}
+nav a:hover,nav a[aria-current="page"]{color:var(--ink)}
+
+.hero{margin-top:clamp(40px,8vh,96px);padding:clamp(28px,4vw,52px) clamp(18px,3vw,40px);display:flex;flex-direction:column;gap:22px;background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border:1px solid rgb(235 234 224 / .07);border-radius:4px}
+.hero h1{font-size:clamp(52px,8.5vw,124px);line-height:.92;letter-spacing:-.02em;max-width:10ch}
+.hero h1 em{font-style:normal;color:var(--lime)}
+.hero .sar{font:italic 300 clamp(20px,2.2vw,30px)/1 var(--display);color:var(--mute);margin-top:-8px}
+.hero p{max-width:46ch;color:var(--mute);font-size:15px;margin:0}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);margin-top:clamp(20px,4vh,40px)}
+.nums div{padding:16px 16px 0 0;display:flex;flex-direction:column;gap:4px;min-width:0}
+.nums div+div{padding-left:16px;border-left:1px solid var(--line)}
+.nums b{font:300 clamp(34px,4.6vw,60px)/1 var(--display)}
+
+.photo{position:relative;margin-top:clamp(28px,5vh,48px)}
+.photo img{display:block;width:100%;max-width:100%;aspect-ratio:21/9;object-fit:cover;object-position:50% 60%;border-radius:2px}
+.photo figcaption{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);padding-top:10px}
+
+section.band{margin-top:clamp(40px,7vh,88px);padding-block:clamp(28px,4vw,52px);padding-left:max(clamp(18px,3vw,40px),env(safe-area-inset-left,0px));padding-right:max(clamp(18px,3vw,40px),env(safe-area-inset-right,0px));background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border:1px solid rgb(235 234 224 / .07);border-radius:4px}
+.shead{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:clamp(24px,4vh,40px)}
+.shead h2{font-size:clamp(30px,3.8vw,50px);line-height:1}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(40px,6vw,80px)}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+.story{font:300 clamp(20px,2vw,26px)/1.45 var(--display);max-width:34ch;margin:0}
+.todo{border:1px dashed var(--rule);border-radius:2px;padding:18px;color:var(--mute);font-size:13px;margin-top:22px;max-width:52ch}
+.todo b{color:var(--ink);font-weight:500}
+p.txt{color:var(--mute);max-width:52ch;margin:0 0 18px;font-size:15px}
+.links{display:flex;gap:14px 26px;flex-wrap:wrap}
+.cta{display:inline-flex;align-items:center;background:var(--lime);color:#13200f;text-decoration:none;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:11px 18px;border-radius:999px;border:0;cursor:pointer}
+.cta:hover{background:#7be062}
+.strava{background:#fc5200;color:#fff}
+.strava:hover{background:#e34a00}
+.ghost{display:inline-flex;text-decoration:none;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:10px 0;border-bottom:1px solid var(--rule);background:none;border-top:0;border-left:0;border-right:0;color:inherit;cursor:pointer}
+.ghost:hover{border-bottom-color:var(--ink)}
+
+.events{border-top:1px solid var(--line);margin-bottom:22px}
+.ev{display:grid;grid-template-columns:58px minmax(0,1fr);gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none}
+.ev .d{display:flex;flex-direction:column;align-items:center;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:2px;padding:6px 0}
+.ev .d b{font:300 26px/1 var(--display);color:var(--ink);letter-spacing:0}
+.ev strong{display:block;font:300 20px/1.2 var(--display);transition:color .2s}
+.ev small{color:var(--mute);font-size:12px}
+.ev:hover strong{color:var(--lime)}
+.contact{border-top:1px solid var(--line)}
+.contact div{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:14px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+.contact b{font:300 clamp(20px,2.2vw,28px) var(--display);user-select:all;word-break:break-word}
+.contact button{font:500 11px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.contact button:hover{color:var(--ink);border-color:var(--rule)}
+@media(max-width:520px){.contact div{grid-template-columns:1fr auto}.contact div .lab{grid-column:1/-1}}
+
+.percent{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:center;border:1px solid var(--line);border-radius:2px;padding:clamp(24px,4vw,48px)}
+@media(max-width:700px){.percent{grid-template-columns:1fr}}
+.percent .big{font:300 clamp(96px,14vw,180px)/.85 var(--display);color:var(--lime);letter-spacing:-.04em}
+.percent h2{font-size:clamp(28px,3.2vw,42px);line-height:1.05;margin-bottom:14px}
+.percent ol{margin:0 0 6px;padding-left:1.2em;color:var(--mute);font-size:14px;max-width:56ch}
+.percent li{margin-bottom:6px}
+.percent li b{color:var(--ink);font-weight:500}
+
+/* tabuľa podpory PSK: biela s farbami kraja, ako originál */
+.psk{margin:0;background:#fff;color:#1d4f91;border:1px solid #c9ced6;border-radius:2px;padding:clamp(16px,3vw,28px);font-family:Arial,"Helvetica Neue",sans-serif;display:flex;flex-direction:column;gap:2px;max-width:640px}
+.psk-top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.psk-kraj{display:flex;align-items:center;gap:14px;padding-right:18px;border-right:2px solid #1d4f91}
+.psk-erb{width:56px;height:66px;border:1px dashed #9aa6b8;border-radius:0 0 28px 28px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#6b7a90;text-align:center}
+.psk-kraj b{font-size:clamp(15px,2vw,20px);line-height:1.15;font-weight:700}
+.psk-vyzva{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;color:#e3242b;font-weight:700;font-size:clamp(14px,1.8vw,18px)}
+.psk-vyzva b:first-child{font-size:1.3em}
+.psk-vyzva .rok{color:#1d4f91}
+.psk small{font-size:13px;font-weight:700;margin-top:10px}
+.psk strong{font-size:clamp(18px,2.4vw,24px);line-height:1.2;font-weight:700}
+.psk p{margin:14px 0 0;font-size:13px;font-weight:700}
+.psk-img{display:block;width:100%;max-width:640px;height:auto;border-radius:2px}
+footer{padding-block:clamp(80px,14vh,150px) 40px}
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px;font-size:12px;color:var(--mute)}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--ink)}
+</template>
+<script>
+/* Mapa trate pre detail preteku. Body trás sú v data/trate.json: [km, lat, lon, výška m] z GPX na ZASRUN. */
+
+/* Mapa okolo zvolenej trate: projekcia do viewBoxu širokého 1000 a vrstevnice po 20 m.
+   Terén je ilustračný (odvodený z výšok na všetkých tratiach v allTracks + šum), nie presný model reliéfu. */
+function buildMap(track,allTracks=[track],padLat=.012,padLon=.018){
+ const KX=72.7,KY=111.2,W=1000;
+ const lats=track.map(p=>p[1]),lons=track.map(p=>p[2]);
+ const LAT0=Math.min(...lats)-padLat,LAT1=Math.max(...lats)+padLat;
+ let LON0=Math.min(...lons)-padLon,LON1=Math.max(...lons)+padLon;
+ /* mapa aspoň 1,6 : 1 na šírku, inak by sa vysoká trať (Umirak) zmenšila na nečitateľnú */
+ const kmW=(LON1-LON0)*KX,kmH=(LAT1-LAT0)*KY;
+ if(kmW<kmH*1.6){const ext=(kmH*1.6-kmW)/2/KX;LON0-=ext;LON1+=ext}
+ const S=W/((LON1-LON0)*KX),H=(LAT1-LAT0)*KY*S;
+ const px=lon=>(lon-LON0)*KX*S,py=lat=>(LAT1-lat)*KY*S;
+ const hash=(i,j)=>{let h=i*374761393+j*668265263;h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)/4294967295};
+ const noise=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=hash(i,j),b=hash(i+1,j),c=hash(i,j+1),d=hash(i+1,j+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v};
+ const fbm=(x,y)=>noise(x,y)*.6+noise(x*2.1+7,y*2.1+3)*.28+noise(x*4.3+1,y*4.3+9)*.12;
+ /* všetko v km, aby terén vyzeral rovnako pri každej mierke */
+ const KLON=LON=>(LON-20.90)*KX,KLAT=LAT=>(49.27-LAT)*KY;
+ const PTS=allTracks.flat().map(p=>[KLON(p[2]),KLAT(p[1]),p[3]]);
+ const NX=170,CW=W/(NX-1),NY=Math.ceil(H/CW)+1;
+ const field=new Float32Array(NX*NY);
+ for(let j=0;j<NY;j++)for(let i=0;i<NX;i++){
+  const xk=KLON(LON0+i*CW/S/KX),yk=KLAT(LAT1-j*CW/S/KY);
+  const wx=xk+(fbm(xk/2.22,yk/2.22)-.5)*1.73,wy=yk+(fbm(xk/2.22+20,yk/2.22+11)-.5)*1.73;
+  let h=420+fbm(xk/3.46,yk/3.46)*80;
+  const slope=(3.6+fbm(xk/1.48,yk/1.48)*2.4)*40.46;
+  for(const p of PTS){const v=p[2]-Math.hypot(wx-p[0],wy-p[1])*slope;if(v>h)h=v}
+  field[j*NX+i]=h+(fbm(xk/.54,yk/.54)-.5)*22;
+ }
+ const CASES=[[],[[3,2]],[[2,1]],[[3,1]],[[0,1]],[[3,0],[2,1]],[[0,2]],[[3,0]],[[3,0]],[[0,2]],[[3,2],[0,1]],[[0,1]],[[3,1]],[[2,1]],[[3,2]],[]];
+ let minor="",major="";
+ for(let L=440;L<=1160;L+=20){
+  let s="";
+  for(let j=0;j<NY-1;j++)for(let i=0;i<NX-1;i++){
+   const a=field[j*NX+i],b=field[j*NX+i+1],c=field[(j+1)*NX+i+1],d=field[(j+1)*NX+i];
+   const k=(a>L?8:0)|(b>L?4:0)|(c>L?2:0)|(d>L?1:0);
+   if(k===0||k===15)continue;
+   const e=n=>n===0?[i+(L-a)/(b-a),j]:n===1?[i+1,j+(L-b)/(c-b)]:n===2?[i+(L-d)/(c-d),j+1]:[i,j+(L-a)/(d-a)];
+   for(const [m,n] of CASES[k]){const p=e(m),q=e(n);s+=`M${(p[0]*CW).toFixed(1)} ${(p[1]*CW).toFixed(1)}L${(q[0]*CW).toFixed(1)} ${(q[1]*CW).toFixed(1)}`}
+  }
+  if(L%100===0)major+=s;else minor+=s;
+ }
+ return {W,H,px,py,minor,major};
+}
+
+
+function view_pretek(){
+const curHash=()=>{const h=location.hash.slice(1);return h.startsWith("pretek-")?h.slice(7):""};
+
+/* Obsah pretekov je v data/preteky.json (načíta obsah.js). Tu ho len prevedieme do tvaru, s ktorým pracuje vykresľovanie. */
+let RACES={},KONTAKT=null,VSETKY_TRATE=[];
+const zPreteku=(p,T)=>({
+ name:p.nazov,kicker:p.podnadpis,tagline:p.popis,logo:p.logo,track:T[p.trasa],reg:p.registracia,gpx:p.gpx,status:p.stav,
+ stats:p.cisla.map(c=>[c.hodnota,c.popis]),
+ certs:[...(p.itra?[[`<span class="itra">iTRA <b>${p.itra}</b></span>`,`${p.itra} ITRA body`,"za dobehnutie do cieľa"]]:[]),
+        ...(p.liga?[[`<img class="ssa" src="logo-ssa-svetle.png" width="90" height="36" alt="Slovenská skyrunningová asociácia">`,esc(p.liga),"pretek je súčasťou ligy"]]:[])],
+ aids:p.obcerstvovacky.map(a=>[a.km_trasy,a.nazov,a.popis]),
+ pts:p.body_na_mape.map(a=>[a.km_trasy,a.nazov,a.strana||undefined]),
+ start:p.start,finish:p.ciel,
+ prop:p.propozicie.map(r=>[r.nazov,r.hodnota]),date:datumSk(p.datum),
+ harm:p.harmonogram.map(h=>[h.cas,h.popis]),trans:p.doprava.map(r=>[r.nazov,r.hodnota]),
+ recs:{m:[p.rekordy.muzi.cas,p.rekordy.muzi.meno,p.rekordy.muzi.klub,p.rekordy.muzi.rok],z:[p.rekordy.zeny.cas,p.rekordy.zeny.meno,p.rekordy.zeny.klub,p.rekordy.zeny.rok]},
+ arch:p.archiv.map(a=>[a.rocnik,datumSk(a.datum),a.v_cieli,[a.vitaz.meno,a.vitaz.cas],[a.vitazka.meno,a.vitazka.cas],a.vysledky]),
+ orgs:p.organizatori.map(o=>[o.nazov,o.rola])
+});const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString("sk",{maximumFractionDigits:1});
+let R,M,idx=0;
+
+function render(key){
+ R=RACES[key];
+ document.title=R.name+" · Čergovrun";
+ $("switch").innerHTML=Object.keys(RACES).map(k=>`<a href="#pretek-${k}" role="tab" aria-current="${k===key}">${esc(RACES[k].name)}</a>`).join("");
+ $("name").innerHTML=R.logo?`<img src="${esc(R.logo)}" alt="${esc(R.name)}">`:esc(R.name);$("name").classList.toggle("haslogo",!!R.logo);
+ $("kicker").textContent=R.kicker;$("tagline").textContent=R.tagline;$("status").textContent=R.status;
+ $("reg").href=R.reg;$("gpx").href=R.gpx;
+ $("certs").innerHTML=(R.certs||[]).map(c=>`<div class="cert">${c[0]}<span><strong>${c[1]}</strong>${c[2]}</span></div>`).join("");
+ $("stats").innerHTML=R.stats.map(s=>`<div><b>${s[0]}</b><span>${s[1]}</span></div>`).join("");
+
+ /* mapa */
+ const t=R.track;M=buildMap(t,VSETKY_TRATE);
+ const d=t.map((p,i)=>(i?"L":"M")+M.px(p[2]).toFixed(1)+" "+M.py(p[1]).toFixed(1)).join("");
+ const at=km=>t.reduce((b,p)=>Math.abs(p[0]-km)<Math.abs(b[0]-km)?p:b);
+ const lab=(p,txt,dx=12,dy=5,side)=>{const x=M.px(p[2]),anchor=side||(x>M.W*.75?"end":"start");return `<text x="${(x+(anchor==="end"?-dx:dx)).toFixed(1)}" y="${(M.py(p[1])+dy).toFixed(1)}" text-anchor="${anchor}">${txt}</text>`};
+ let marks="";
+ R.aids.forEach((a,n)=>{const p=at(a[0]);marks+=`<g class="aid"><circle cx="${M.px(p[2]).toFixed(1)}" cy="${M.py(p[1]).toFixed(1)}" r="7"/>${lab(p,(n+1)+" · "+a[1])}</g>`});
+ R.pts.forEach(a=>{const p=at(a[0]);marks+=`<g class="pt"><circle cx="${M.px(p[2]).toFixed(1)}" cy="${M.py(p[1]).toFixed(1)}" r="5"/>${lab(p,a[1],10,-10,a[2])}</g>`});
+ const s=t[0],f=t[t.length-1];
+ marks+=`<g class="pt"><circle cx="${M.px(s[2]).toFixed(1)}" cy="${M.py(s[1]).toFixed(1)}" r="6"/>${lab(s,R.start,12,18)}</g>`;
+ if(R.finish)marks+=`<g class="pt"><circle cx="${M.px(f[2]).toFixed(1)}" cy="${M.py(f[1]).toFixed(1)}" r="6"/>${lab(f,R.finish,12,18)}</g>`;
+ $("map").setAttribute("viewBox",`0 0 ${M.W} ${M.H.toFixed(0)}`);
+ $("map").innerHTML=`<path class="minor" d="${M.minor}"/><path class="major" d="${M.major}"/><path class="halo" d="${d}"/><path class="trk" d="${d}"/>${marks}<circle class="cur" id="cur" r="8"/>`;
+
+ /* profil */
+ const km=f[0],E0=400,E1=1200,X=k=>k/km*1000,Y=e=>(1-(e-E0)/(E1-E0))*100;
+ const line=t.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[3]).toFixed(2)).join("");
+ let g="";for(const e of [600,800,1000])g+=`<div class="g" style="top:${Y(e)}%"><span>${fmt(e)} m</span></div>`;
+ R.aids.forEach((a,n)=>{const l=X(at(a[0])[0])/10;g+=`<div class="aidl${l>80?" r":""}" style="left:${l}%"><span>${n+1} · ${a[1]}</span></div>`});
+ $("prof").innerHTML=g+`<svg viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true"><path class="area" d="${line}L1000 100L0 100Z"/><path class="ln" d="${line}"/></svg><div class="curl" id="curl"></div><div class="kms"><span>0 km</span><span>${Math.round(km/2)} km</span><span>${fmt(km)} km</span></div>`;
+ $("aids").innerHTML=R.aids.map((a,n)=>`<div><b>${n+1}</b><span><strong>${a[1]}</strong>${a[2]}</span></div>`).join("");
+ $("pos").max=t.length-1;setIdx(0);
+
+ /* info */
+ const dl=a=>a.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join("");
+ $("prop").innerHTML=dl(R.prop);$("trans").innerHTML=dl(R.trans);
+ $("hdate").textContent="Ročník 2026 · "+R.date;
+ $("harm").innerHTML=R.harm.map(h=>`<div><b>${h[0]}</b><span>${h[1]}</span></div>`).join("");
+ const rc=(r,l)=>`<div class="rec"><span class="lab">${l}</span><b>${r[0]}</b><span><strong>${r[1]}</strong> · ${r[2]} · ${r[3]}</span></div>`;
+ $("recs").innerHTML=rc(R.recs.m,"Muži")+rc(R.recs.z,"Ženy");
+ $("arch").innerHTML=R.arch.map(a=>`<tr><td class="y">${a[0]}</td><td>${a[1]}</td><td>${a[2]}</td><td>${a[3][0]}<small>${a[3][1]}</small></td><td>${a[4][0]}<small>${a[4][1]}</small></td><td>${a[5]?`<a href="${esc(a[5])}">Výsledky</a>`:""}</td></tr>`).join("");
+ $("orgs").innerHTML=R.orgs.map(o=>`<div><b>${o[0]}</b><span>${o[1]}</span></div>`).join("")+`<div class="empty">Miesto pre partnerov ${new Date().getFullYear()+1}</div>`;
+ $("contact").textContent=KONTAKT?`Kontakt: ${KONTAKT.meno} · ${KONTAKT.telefon}`:"";
+}
+
+function setIdx(i){
+ const t=R.track;idx=Math.max(0,Math.min(t.length-1,i));const p=t[idx];
+ const c=$("cur");c.setAttribute("cx",M.px(p[2]).toFixed(1));c.setAttribute("cy",M.py(p[1]).toFixed(1));
+ $("curl").style.left=(p[0]/t[t.length-1][0]*100)+"%";
+ $("read").innerHTML=`<b>${fmt(p[0])} km</b>${fmt(p[3])} m n. m.`;
+ $("pos").value=idx;
+}
+function nearestKm(km){const t=R.track;let b=0;for(let i=1;i<t.length;i++)if(Math.abs(t[i][0]-km)<Math.abs(t[b][0]-km))b=i;return b}
+$("prof").addEventListener("pointermove",e=>{if(!R)return;const r=$("prof").getBoundingClientRect();const k=(e.clientX-r.left)/r.width*R.track[R.track.length-1][0];setIdx(nearestKm(k))});
+$("prof").addEventListener("pointerdown",e=>{$("prof").setPointerCapture(e.pointerId)});
+$("map").addEventListener("pointermove",e=>{if(!R)return;
+ const svg=$("map"),pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const q=pt.matrixTransform(svg.getScreenCTM().inverse());
+ let b=0,bd=1e9;R.track.forEach((p,i)=>{const d=Math.hypot(M.px(p[2])-q.x,M.py(p[1])-q.y);if(d<bd){bd=d;b=i}});
+ if(bd<80)setIdx(b);
+});
+$("pos").addEventListener("input",e=>{if(R)setIdx(+e.target.value)});
+
+/* v prototype môže byť stránka v iframe bez vlastnej adresy, kotvu potom drží CR_HASH (router.js) */
+
+
+function route(){const k=curHash(),keys=Object.keys(RACES);if(keys.length)render(RACES[k]?k:keys[0])}
+Promise.all([obsah("preteky"),obsah("trate"),obsah("klub")]).then(([P,T,K])=>{
+ /* hlavný pretek (výkladná skriňa) ide prvý */
+ P.slice().sort((a,b)=>(b.hlavny?1:0)-(a.hlavny?1:0)).forEach(p=>RACES[p.slug]=zPreteku(p,T));
+ KONTAKT=K.kontakt;VSETKY_TRATE=Object.values(T).filter(Array.isArray);
+ addEventListener("hashchange",route);route();
+});
+
+}
+function view_novinky(){
+const curHash=()=>{const h=location.hash.slice(1);return h.startsWith("novinky-")?h.slice(8):""};
+
+/* Články sú v data/novinky.json (načíta obsah.js). Najnovšie prvé, ukážkové na konci. */
+let POSTS=[];
+const zClanku=c=>({slug:c.slug,date:datumSk(c.datum,"Ukážka"),cat:c.kategoria,img:c.obrazok,alt:c.obrazok_popis,sample:c.ukazka,title:c.nazov,perex:c.perex,body:c.obsah});
+const view=document.getElementById("view");
+let cat="Všetko";
+const ph=p=>p.img?`<div class="ph"><img src="${p.img}" alt="${p.alt}"></div>`:`<div class="ph topo" role="img" aria-label="Bez fotky"></div>`;
+const meta=p=>`<span class="lab">${p.date} · ${p.cat}</span>${p.sample?'<span class="tag">ukážka</span>':""}`;
+
+function archive(){
+ document.title="Čergovrun novinky";
+ const list=POSTS.filter(p=>cat==="Všetko"||p.cat===cat);
+ const cats=["Všetko",...new Set(POSTS.map(p=>p.cat))];
+ const [first,...rest]=list;
+ view.innerHTML=`<div class="head"><h1>Novinky</h1><div class="filters" role="group" aria-label="Kategória">${cats.map(c=>`<button type="button" aria-pressed="${c===cat}">${c}</button>`).join("")}</div></div>`+
+  (first?`<a class="lead" href="#novinky-${first.slug}">${ph(first)}<div><div>${meta(first)}</div><h2>${first.title}</h2><p>${first.perex}</p><span class="more">Čítať ďalej</span></div></a>`:`<p class="empty">V tejto kategórii zatiaľ nič nie je.</p>`)+
+  (rest.length?`<div class="grid">${rest.map(p=>`<a class="card" href="#novinky-${p.slug}">${ph(p)}<div>${meta(p)}</div><h3>${p.title}</h3><p>${p.perex}</p></a>`).join("")}</div>`:"");
+ view.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>{cat=b.textContent;archive()}));
+}
+function single(p){
+ document.title=p.title+" · Čergovrun";
+ const others=POSTS.filter(x=>x!==p).slice(0,3);
+ view.innerHTML=`<article class="post"><a class="back" href="#novinky">← Všetky novinky</a><h1>${p.title}</h1><div class="meta">${meta(p)}</div>${ph(p)}
+  <div class="body"><p class="perex">${p.perex}</p>${p.body}</div></article>
+  <div class="related"><span class="lab">Ďalšie novinky</span><div class="grid">${others.map(o=>`<a class="card" href="#novinky-${o.slug}">${ph(o)}<div>${meta(o)}</div><h3>${o.title}</h3></a>`).join("")}</div></div>`;
+ scrollTo(0,0);
+}
+/* v prototype môže byť stránka v iframe bez vlastnej adresy, kotvu potom drží CR_HASH (router.js) */
+
+
+function route(){const s=curHash();const p=POSTS.find(x=>x.slug===s);p?single(p):archive()}
+obsah("novinky").then(N=>{
+ POSTS=N.slice().sort((a,b)=>(a.ukazka-b.ukazka)||(b.datum||"").localeCompare(a.datum||"")).map(zClanku);
+ addEventListener("hashchange",route);route();
+});
+
+}
+function view_klub(){
+const curHash=()=>{const h=location.hash.slice(1);return h.startsWith("klub-")?h.slice(5):""};
+
+/* Obsah stránky je v data/klub.json a data/vybehy.json (načíta obsah.js) */
+const DNI=["Ne","Po","Ut","St","Št","Pi","So"],MES=["jan","feb","mar","apr","máj","jún","júl","aug","sep","okt","nov","dec"];
+Promise.all([obsah("klub"),obsah("vybehy"),obsah("preteky")]).then(([K,V,P])=>{
+ const $k=id=>document.getElementById(id);
+ $k("kUvod").textContent=K.uvod;
+ $k("kCisla").innerHTML=[[K.zalozenie.slice(0,4),"vznik klubu"],[K.clenovia,"členov"],[P.length,"preteky ročne"]].map(c=>`<div><b>${esc(c[0])}</b><span class="lab">${c[1]}</span></div>`).join("");
+ const F=K.fotka;
+ $k("kFotka").innerHTML=F&&F.subor?`<img src="${esc(F.subor)}" alt="${esc(F.popis)}"><figcaption><span>${esc(F.titulok)}</span>${F.ukazka?"<span>Ukážka · nahradíme klubovou fotkou</span>":""}</figcaption>`:"";
+ $k("kFotka").hidden=!(F&&F.subor);
+ $k("kOd").textContent="od "+datumSk(K.zalozenie);
+ $k("kPribeh").innerHTML=`<p class="story">${esc(K.nazov)} vzniklo ${datumSk(K.zalozenie)}.</p>`+
+  (K.pribeh?`<div class="txt">${K.pribeh}</div>`:`<div class="todo"><b>Príbeh dopíše Lukáš.</b> Ako to celé začalo, kto bol pri tom a prečo práve Čergov. Pár odsekov, kľudne aj s historkou z prvého výbehu.</div>`);
+ /* najbližšie výbehy: len budúce, zoradené podľa času */
+ const dnes=new Date().toISOString().slice(0,10);
+ const bud=V.filter(v=>v.zaciatok.slice(0,10)>=dnes).sort((a,b)=>a.zaciatok.localeCompare(b.zaciatok)).slice(0,4);
+ $k("kVybehyLab").innerHTML="Najbližšie"+(bud.some(v=>v.ukazka)?' <span class="tag">ukážka</span>':"");
+ $k("kVybehy").innerHTML=bud.length?bud.map(v=>{const d=new Date(v.zaciatok),det=[`${DNI[d.getDay()]} ${d.getHours()}:${String(d.getMinutes()).padStart(2,"0")}`,v.miesto,v.km?v.km+" km":"",v.stupanie?"+"+v.stupanie+" m":"",v.poznamka].filter(Boolean).join(" · ");
+  return `<a class="ev" href="${esc(v.odkaz||K.odkazy.strava)}"><span class="d"><b>${d.getDate()}</b>${MES[d.getMonth()]}</span><span><strong>${esc(v.nazov)}</strong><small>${esc(det)}</small></span></a>`}).join(""):`<p class="txt">Najbližší výbeh zatiaľ nie je v pláne. Sleduj Strava klub.</p>`;
+ $k("kOdkazy").innerHTML=`<a class="cta strava" href="${esc(K.odkazy.strava)}">Strava klub</a><a class="ghost" href="${esc(K.odkazy.facebook)}">Facebook</a>`;
+ $k("kPoslanie").textContent=K.poslanie;
+ const C=K.kontakt;
+ $k("kKontakt").innerHTML=`<div><span class="lab">Kontakt</span><b>${esc(C.meno)}</b><span></span></div><div><span class="lab">Telefón</span><b id="tel">${esc(C.telefon)}</b><button type="button" data-copy="tel">Kopírovať</button></div><div><span class="lab">E-mail</span><b id="mail">${esc(C.email)}</b><button type="button" data-copy="mail">Kopírovať</button></div>`;
+ $k("kIco").innerHTML=K.ico?`<b>${esc(K.ico)}</b>`:'<b>doplníme</b> <span class="tag">chýba</span>';
+ /* podpora: ak je nahraný originálny obrázok tabule, použije sa ten, inak prepis */
+ const S=K.podpora||[];$k("podpora").hidden=!S.length;
+ $k("podpora").innerHTML=S.map(s=>`<div class="shead"><h2>Podporili nás</h2><span class="lab">${esc(s.program)} ${s.rok}</span></div>
+  <div class="two"><p class="txt">Projekt ${esc(s.projekt.split(":")[0])} je podporený z rozpočtu ${esc(s.poskytovatel.replace("Prešovský samosprávny kraj","Prešovského samosprávneho kraja"))}. Ďakujeme.</p>
+  ${s.tabula?`<img class="psk-img" src="${esc(s.tabula)}" alt="Tabuľa podpory: ${esc(s.projekt)}, prijímateľ ${esc(s.prijimatel)}, dotácia ${esc(s.dotacia)}">`:
+  `<figure class="psk" role="img" aria-label="Tabuľa podpory ${esc(s.poskytovatel)}: ${esc(s.projekt)}, prijímateľ ${esc(s.prijimatel)}, dotácia ${esc(s.dotacia)}">
+   <div class="psk-top"><div class="psk-kraj"><span class="psk-erb">erb PSK</span><b>PREŠOVSKÝ<br>SAMOSPRÁVNY<br>KRAJ</b></div><div class="psk-vyzva"><b>VÝZVA</b><b>POSLANCOV</b><b>PSK</b><b class="rok">${s.rok}</b></div></div>
+   <small>Názov projektu</small><strong>${esc(s.projekt)}</strong><small>Prijímateľ podpory</small><strong>${esc(s.prijimatel)}</strong><small>Výška dotácie</small><strong>${esc(s.dotacia)}</strong>
+   <p>Projekt podporený z rozpočtu ${esc(s.poskytovatel.replace("Prešovský samosprávny kraj","Prešovského samosprávneho kraja"))}.</p></figure>`}</div>`).join("");
+ kopirovanie();
+});
+/* Kopírovanie kontaktu; keď schránka nefunguje, aspoň označí text */
+function kopirovanie(){document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{
+ const el=document.getElementById(b.dataset.copy);
+ const done=()=>{b.textContent="Skopírované";setTimeout(()=>b.textContent="Kopírovať",1600)};
+ const select=()=>{const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r)};
+ try{navigator.clipboard.writeText(el.textContent).then(done,select)}catch(e){select()}
+}))}
+
+}
+/* Prepínanie pohľadov podľa kotvy. Štýly podstránok sa načítajú až pri prvom zobrazení
+   a dostanú predponu #v-<stránka>, aby nezasiahli úvod. */
+const VIEWS={pretek:view_pretek,novinky:view_novinky,klub:view_klub},inited={};
+let curView=null;
+function scopeCss(p){
+ const st=document.createElement("style");st.textContent=document.getElementById("css-"+p).content.textContent;document.head.appendChild(st);
+ const pre="#v-"+p;
+ const walk=rules=>{for(const r of rules){
+  if(r instanceof CSSStyleRule){r.selectorText=r.selectorText.split(",").map(s=>s.trim()).map(s=>/^(:root|html|body)\b/.test(s)?pre+"__skip":pre+" "+s).join(",")}
+  else if(r.cssRules&&!(r instanceof CSSKeyframesRule))walk(r.cssRules);
+ }};
+ walk(st.sheet.cssRules);
+}
+function show(){
+ const h=decodeURIComponent(location.hash.slice(1));
+ let v=h.split("-")[0];if(!VIEWS[v])v="home";
+ document.getElementById("v-home").hidden=v!=="home";document.getElementById("v-home-foot").hidden=v!=="home";
+ for(const p in VIEWS)document.getElementById("v-"+p).hidden=p!==v;
+ if(v!=="home"&&!inited[v]){scopeCss(v);VIEWS[v]();inited[v]=1}
+ if(v==="home")document.title="Čergovrun návrh webu";
+ const target=h&&document.getElementById(h);
+ if(target)requestAnimationFrame(()=>target.scrollIntoView());
+ else if(v!==curView||!h)scrollTo(0,0);
+ curView=v;
+}
+addEventListener("hashchange",show);show();
+</script>
+
+</body></html>
