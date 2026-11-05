@@ -1,11 +1,3 @@
-<!doctype html>
-<html lang="sk">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Čergovrun o klube</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@400;500&display=swap">
-<style>
 /* Layout: O klube. Veľký nadpis a čísla, cez celú šírku jedna spoločná fotka, potom príbeh, spoločné výbehy,
    ako sa pridať (kontakt) a 2 % dane. Rovnaká paleta a písmo ako ostatné stránky. */
 :root{
@@ -26,14 +18,14 @@ h1,h2,h3{font-family:var(--display);font-weight:300;margin:0;text-wrap:balance}
 .wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .tag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:2px}
 
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgb(31 40 32 / .55);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid rgb(54 66 55 / .6)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border-bottom:1px solid rgb(54 66 55 / .6)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:10px}
 .brand{font:400 22px var(--display);text-decoration:none}
 nav{display:flex;gap:6px 26px;flex-wrap:wrap}
 nav a{font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--mute);padding:10px 0}
 nav a:hover,nav a[aria-current="page"]{color:var(--ink)}
 
-.hero{padding-block:clamp(64px,12vh,140px) clamp(28px,5vh,48px);display:flex;flex-direction:column;gap:22px}
+.hero{margin-top:clamp(40px,8vh,96px);padding:clamp(28px,4vw,52px) clamp(18px,3vw,40px);display:flex;flex-direction:column;gap:22px;background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border:1px solid rgb(235 234 224 / .07);border-radius:4px}
 .hero h1{font-size:clamp(52px,8.5vw,124px);line-height:.92;letter-spacing:-.02em;max-width:10ch}
 .hero h1 em{font-style:normal;color:var(--lime)}
 .hero .sar{font:italic 300 clamp(20px,2.2vw,30px)/1 var(--display);color:var(--mute);margin-top:-8px}
@@ -47,7 +39,7 @@ nav a:hover,nav a[aria-current="page"]{color:var(--ink)}
 .photo img{display:block;width:100%;max-width:100%;aspect-ratio:21/9;object-fit:cover;object-position:50% 60%;border-radius:2px}
 .photo figcaption{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);padding-top:10px}
 
-section.band{padding-block:clamp(64px,10vh,120px) 0}
+section.band{margin-top:clamp(40px,7vh,88px);padding-block:clamp(28px,4vw,52px);padding-left:max(clamp(18px,3vw,40px),env(safe-area-inset-left,0px));padding-right:max(clamp(18px,3vw,40px),env(safe-area-inset-right,0px));background:rgb(24 32 25 / .25);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);border:1px solid rgb(235 234 224 / .07);border-radius:4px}
 .shead{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:clamp(24px,4vh,40px)}
 .shead h2{font-size:clamp(30px,3.8vw,50px);line-height:1}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(40px,6vw,80px)}
@@ -86,112 +78,20 @@ p.txt{color:var(--mute);max-width:52ch;margin:0 0 18px;font-size:15px}
 .percent li{margin-bottom:6px}
 .percent li b{color:var(--ink);font-weight:500}
 
+/* tabuľa podpory PSK: biela s farbami kraja, ako originál */
+.psk{margin:0;background:#fff;color:#1d4f91;border:1px solid #c9ced6;border-radius:2px;padding:clamp(16px,3vw,28px);font-family:Arial,"Helvetica Neue",sans-serif;display:flex;flex-direction:column;gap:2px;max-width:640px}
+.psk-top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.psk-kraj{display:flex;align-items:center;gap:14px;padding-right:18px;border-right:2px solid #1d4f91}
+.psk-erb{width:56px;height:66px;border:1px dashed #9aa6b8;border-radius:0 0 28px 28px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#6b7a90;text-align:center}
+.psk-kraj b{font-size:clamp(15px,2vw,20px);line-height:1.15;font-weight:700}
+.psk-vyzva{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;color:#e3242b;font-weight:700;font-size:clamp(14px,1.8vw,18px)}
+.psk-vyzva b:first-child{font-size:1.3em}
+.psk-vyzva .rok{color:#1d4f91}
+.psk small{font-size:13px;font-weight:700;margin-top:10px}
+.psk strong{font-size:clamp(18px,2.4vw,24px);line-height:1.2;font-weight:700}
+.psk p{margin:14px 0 0;font-size:13px;font-weight:700}
+.psk-img{display:block;width:100%;max-width:640px;height:auto;border-radius:2px}
 footer{padding-block:clamp(80px,14vh,150px) 40px}
 .foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px;font-size:12px;color:var(--mute)}
 .foot a{text-decoration:none}
 .foot a:hover{color:var(--ink)}
-</style>
-</head>
-<body>
-
-<header class="top">
- <div class="wrap bar">
-  <a class="brand" href="index.html">Čergovrun</a>
-  <nav aria-label="Hlavné menu">
-   <a href="index.html#preteky">Preteky</a><a href="novinky.html">Novinky</a><a href="index.html#challenge">Výzvy</a><a href="index.html#galeria">Galéria</a><a href="klub.html" aria-current="page">O klube</a>
-  </nav>
- </div>
-</header>
-
-<main>
- <section class="hero wrap">
-  <span class="lab">O klube · OZ Čergovrun</span>
-  <h1>Čergov<em>Run</em></h1>
-  <span class="sar">Šicko do kopca.</span>
-  <p>Bežíme spolu od decembra 2018. Organizujeme Beh hrebeňom Čergova aj Čergovský umirak a kedykoľvek sa dá, vybehneme spolu na hrebeň.</p>
-  <div class="nums">
-   <div><b>2018</b><span class="lab">vznik klubu</span></div>
-   <div><b>60</b><span class="lab">členov</span></div>
-   <div><b>2</b><span class="lab">preteky ročne</span></div>
-  </div>
- </section>
-
- <figure class="photo wrap">
-  <img src="galeria/ciel-skupina.jpg" alt="Spoločná fotka bežcov pod nafukovacou bránou Behu hrebeňom Čergova">
-  <figcaption><span>Beh hrebeňom Čergova 2026</span><span>Ukážka · nahradíme klubovou fotkou</span></figcaption>
- </figure>
-
- <section class="band wrap" id="pribeh">
-  <div class="two">
-   <div>
-    <div class="shead"><h2>Náš príbeh</h2><span class="lab">od 27. 12. 2018</span></div>
-    <p class="story">OZ Čergovrun vzniklo 27. decembra 2018.</p>
-    <div class="todo"><b>Príbeh dopíše Lukáš.</b> Ako to celé začalo, kto bol pri tom a prečo práve Čergov. Pár odsekov, kľudne aj s historkou z prvého výbehu.</div>
-   </div>
-   <div id="vybehy">
-    <div class="shead"><h2>Spoločné výbehy</h2><span class="lab">Najbližšie <span class="tag">ukážka</span></span></div>
-    <p class="txt">Pevný rozvrh nemáme. Keď sa ide hore, dáme vedieť a kto môže, pridá sa.</p>
-    <div class="events">
-     <a class="ev" href="https://www.strava.com/clubs/CergovRun"><span class="d"><b>7</b>nov</span><span><strong>Výbeh na Minčol</strong><small>So 9:00 · Farma Kamenica · 14 km · +650 m</small></span></a>
-     <a class="ev" href="https://www.strava.com/clubs/CergovRun"><span class="d"><b>22</b>nov</span><span><strong>Z Drienice na Lysú a späť</strong><small>Ne 8:30 · Ride pub Drienica · 12 km · +600 m</small></span></a>
-     <a class="ev" href="https://www.strava.com/clubs/CergovRun"><span class="d"><b>31</b>dec</span><span><strong>Silvestrovský výbeh</strong><small>Št 10:00 · Hotel Šport, Lysá · voľné tempo</small></span></a>
-    </div>
-    <div class="links">
-     <a class="cta strava" href="https://www.strava.com/clubs/CergovRun">Strava klub</a>
-     <a class="ghost" href="https://www.facebook.com/people/Beh-hrebe%C5%88om-%C4%8Cergova/100051324536911/">Facebook</a>
-    </div>
-   </div>
-  </div>
- </section>
-
- <section class="band wrap" id="clenstvo">
-  <div class="two">
-   <div>
-    <div class="shead"><h2>Podpora a rozvoj behu v Čergove</h2></div>
-    <p class="txt">Čergovrun je bežecký klub s poslaním rozvíjať beh ako šport a komunitu v regióne Čergov. Sme zanietení pre zdravý životný štýl a spájame bežcov všetkých vekových kategórií, aby sme spoločne budovali silnú bežeckú komunitu.</p>
-   </div>
-   <div class="contact">
-    <div><span class="lab">Kontakt</span><b>Lukáš Višňovský</b><span></span></div>
-    <div><span class="lab">Telefón</span><b id="tel">+421 944 001 353</b><button type="button" data-copy="tel">Kopírovať</button></div>
-    <div><span class="lab">E-mail</span><b id="mail">visnovskylukas@gmail.com</b><button type="button" data-copy="mail">Kopírovať</button></div>
-   </div>
-  </div>
- </section>
-
- <section class="band wrap" id="dane">
-  <div class="percent">
-   <div class="big">2 %</div>
-   <div>
-    <h2>Pošli nám 2 % z dane</h2>
-    <p class="txt">Nestojí ťa to nič a pomôže to pretekom: značeniu trate, občerstvovačkám aj cenám.</p>
-    <ol>
-     <li>Vyplň <b>Vyhlásenie o poukázaní podielu zaplatenej dane</b> alebo príslušnú časť daňového priznania.</li>
-     <li>Ako prijímateľa uveď <b>OZ Čergovrun</b>, IČO: <b>doplníme</b> <span class="tag">chýba</span></li>
-     <li>Vyhlásenie odovzdaj na daňovom úrade do 30. apríla.</li>
-    </ol>
-   </div>
-  </div>
- </section>
-</main>
-
-<footer class="wrap">
- <div class="foot">
-  <span>Čergovrun · Čergov v nohách. Šicko do kopca.</span>
-  <a href="index.html">Späť na úvod</a>
- </div>
-</footer>
-
-<script src="trate.js"></script>
-<script src="pozadie.js"></script>
-<script>
-/* Kopírovanie kontaktu; keď schránka nefunguje, aspoň označí text */
-document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{
- const el=document.getElementById(b.dataset.copy);
- const done=()=>{b.textContent="Skopírované";setTimeout(()=>b.textContent="Kopírovať",1600)};
- const select=()=>{const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r)};
- try{navigator.clipboard.writeText(el.textContent).then(done,select)}catch(e){select()}
-}));
-</script>
-<script src="router.js"></script>
-</body>
-</html>

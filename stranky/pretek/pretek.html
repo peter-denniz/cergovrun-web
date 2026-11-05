@@ -1,0 +1,70 @@
+<section class="view" id="v-pretek">
+<div class="wrap">
+ <div class="switch" id="switch" role="tablist" aria-label="Preteky"></div>
+</div>
+
+<main>
+ <section class="hero wrap">
+  <div>
+   <span class="lab" id="kicker"></span>
+   <h1 id="name"></h1>
+   <p class="sar" id="tagline"></p>
+   <div class="acts">
+    <a class="cta" id="reg" href="#">Registrácia na ZASRUN</a>
+    <a class="ghost" id="gpx" href="#">Stiahnuť GPX</a>
+   </div>
+   <p class="status" id="status"></p>
+   <div class="certs" id="certs"></div>
+  </div>
+  <div class="stats" id="stats"></div>
+ </section>
+
+ <section class="band wrap" id="trat">
+  <div class="shead"><h2>Trať</h2><span class="lab">Prejdi myšou po mape alebo profile</span></div>
+  <div class="mapwrap">
+   <svg class="map" id="map" role="img" aria-label="Mapa trate s občerstvovačkami"></svg>
+   <div class="read" id="read" aria-live="polite"></div>
+   <div class="legend">Vrstevnice po 20 m · terén ilustračný</div>
+  </div>
+  <div class="prof" id="prof"></div>
+  <div class="slider"><label for="pos">Posúvaj po trati</label><input type="range" id="pos" min="0" max="100" value="0"></div>
+  <div class="aids" id="aids"></div>
+ </section>
+
+ <section class="band wrap" id="info">
+  <div class="two">
+   <div>
+    <div class="shead"><h2>Propozície</h2></div>
+    <dl id="prop"></dl>
+   </div>
+   <div>
+    <div class="shead"><h2>Harmonogram</h2><span class="lab" id="hdate"></span></div>
+    <div class="time" id="harm"></div>
+    <div class="shead" style="margin-top:clamp(48px,7vh,72px)"><h2>Doprava</h2></div>
+    <dl id="trans"></dl>
+   </div>
+  </div>
+ </section>
+
+ <section class="band wrap" id="vysledky">
+  <div class="shead"><h2>Traťové rekordy</h2><span class="lab">z výsledkov na ZASRUN</span></div>
+  <div class="recs" id="recs"></div>
+  <div class="tw"><table><thead><tr><th>Ročník</th><th>Termín</th><th>V cieli</th><th>Víťaz</th><th>Víťazka</th><th></th></tr></thead><tbody id="arch"></tbody></table></div>
+  <p class="note">Archív obsahuje ročníky, ktorých výsledky sú na ZASRUN. Starší ročníky doplníme, keď ich klub nájde.</p>
+ </section>
+
+ <section class="band wrap" id="partneri">
+  <div class="shead"><h2>Organizátori a partneri</h2></div>
+  <div class="orgs" id="orgs"></div>
+ </section>
+</main>
+
+<footer class="wrap">
+ <div class="foot">
+  <span>Čergovrun · Čergov v nohách. Šicko do kopca.</span>
+  <span id="contact"></span>
+  <a href="{{odkaz klub}}">Späť na úvod</a>
+ </div>
+</footer>
+
+</section>

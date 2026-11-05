@@ -1,0 +1,15 @@
+{
+ "nazov": "OZ Čergovrun",
+ "zalozenie": "2018-12-27",
+ "clenovia": 60,
+ "ico": "",
+ "uvod": "Bežíme spolu od decembra 2018. Organizujeme Beh hrebeňom Čergova aj Čergovský umirak a kedykoľvek sa dá, vybehneme spolu na hrebeň.",
+ "fotka": {"subor": "galeria/ciel-skupina.jpg", "popis": "Spoločná fotka bežcov pod nafukovacou bránou Behu hrebeňom Čergova", "titulok": "Beh hrebeňom Čergova 2026", "ukazka": true},
+ "pribeh": "",
+ "poslanie": "Čergovrun je bežecký klub s poslaním rozvíjať beh ako šport a komunitu v regióne Čergov. Sme zanietení pre zdravý životný štýl a spájame bežcov všetkých vekových kategórií, aby sme spoločne budovali silnú bežeckú komunitu.",
+ "kontakt": {"meno": "Lukáš Višňovský", "telefon": "+421 944 001 353", "email": "visnovskylukas@gmail.com"},
+ "odkazy": {"strava": "https://www.strava.com/clubs/CergovRun", "facebook": "https://www.facebook.com/people/Beh-hrebe%C5%88om-%C4%8Cergova/100051324536911/"},
+ "podpora": [
+  {"poskytovatel": "Prešovský samosprávny kraj", "program": "Výzva poslancov PSK", "rok": 2026, "projekt": "Čergovská bežecká séria 2026: Od komunitných behov k svetovému rankingu", "prijimatel": "Čergovrun", "dotacia": "2000", "tabula": ""}
+ ]
+}

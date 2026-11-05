@@ -1,0 +1,29 @@
+{
+ "_popis": "Z čoho nastroje/zostav.py skladá weby. Kľúč = kľúč vo weby.json. priecinok = priečinok v dist/ (naň ukáže subdoména), nahlad = port pre nastroje/nahlad.py, subory = obsahové priečinky skopírované navyše. Stránka: vystup = cesta v hotovom webe, sablona/css/js = súbory v stranky/, rozsah = id obalu stránky, pod ktorý sa uzavrie jej CSS.",
+ "klub": {
+  "priecinok": "cergovrun.sk",
+  "nahlad": 8000,
+  "subory": ["galeria"],
+  "stranky": [
+   {"vystup": "index.html", "titul": "Čergovrun", "sablona": "klub/uvod.html", "css": [], "js": ["klub/uvod.js"]},
+   {"vystup": "novinky/index.html", "titul": "Čergovrun novinky", "sablona": "klub/novinky.html", "css": ["klub/novinky.css"], "rozsah": "v-novinky", "js": ["klub/novinky.js"]},
+   {"vystup": "klub/index.html", "titul": "O klube · Čergovrun", "sablona": "klub/klub.html", "css": ["klub/klub.css"], "rozsah": "v-klub", "js": ["klub/klub.js"]}
+  ]
+ },
+ "hreben": {
+  "priecinok": "behhrebenomcergova.cergovrun.sk",
+  "nahlad": 8001,
+  "subory": [],
+  "stranky": [
+   {"vystup": "index.html", "titul": "Beh hrebeňom Čergova · Čergovrun", "sablona": "pretek/pretek.html", "css": ["pretek/pretek.css"], "rozsah": "v-pretek", "js": ["pretek/pretek.js"]}
+  ]
+ },
+ "umirak": {
+  "priecinok": "cergovskyumirak.cergovrun.sk",
+  "nahlad": 8002,
+  "subory": [],
+  "stranky": [
+   {"vystup": "index.html", "titul": "Čergovský umirak · Čergovrun", "sablona": "pretek/pretek.html", "css": ["pretek/pretek.css"], "rozsah": "v-pretek", "js": ["pretek/pretek.js"]}
+  ]
+ }
+}

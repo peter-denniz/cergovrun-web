@@ -1,0 +1,165 @@
+[
+ {
+  "slug": "hreben",
+  "nazov": "Beh hrebeňom Čergova",
+  "hlavny": true,
+  "logo": "spolocne/grafika/logo-hreben.svg",
+  "mesiac": "Október",
+  "miesto": "Kamenica pri Sabinove · Farma",
+  "podnadpis": "Október · Kamenica → Hotel Šport",
+  "popis": "Najdlhší horský beh v pohorí. Cez Minčol, Dvoriská, Solisko, Veľkú Javorinu, Čergov a Lysú až do sedla Besná.",
+  "stav": "Ročník 2026 sa bežal 24. 10. 2026. Termín 2027 zverejníme na ZASRUN.",
+  "datum": "2026-10-24",
+  "trasa": "hreben",
+  "gpx": "https://zasrun.sk/api/trasy/2/gpx",
+  "registracia": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2026",
+  "itra": 2,
+  "liga": "Slovenská skyrunningová liga",
+  "cisla": [
+   {"hodnota": "31,6", "popis": "km"},
+   {"hodnota": "+1 413", "popis": "m stúpania"},
+   {"hodnota": "5 h", "popis": "časový limit"},
+   {"hodnota": "150", "popis": "bežcov najviac"}
+  ],
+  "karta": {
+   "cisla": [
+    {"hodnota": "31,6", "popis": "km"},
+    {"hodnota": "+1 413", "popis": "m stúpania"},
+    {"hodnota": "554–1 160", "popis": "m n. m."}
+   ],
+   "zvyraznenie": {"nadpis": "Traťový rekord", "meno": "Peter Fraňo", "doplnok": "2026", "cas": "2:25:04", "tempo": "4:38 min/km"},
+   "vysledky": {"rok": 2026, "url": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2026"}
+  },
+  "obcerstvovacky": [
+   {"km_trasy": 6.65, "nazov": "Lazy", "popis": "1. občerstvovačka · 6,5 km · 1 090 m"},
+   {"km_trasy": 16.28, "nazov": "Sedlo Priehyby", "popis": "2. občerstvovačka · 14,5 km · 815 m"},
+   {"km_trasy": 27.1, "nazov": "Sedlo Čergov", "popis": "3. občerstvovačka · 25,5 km · 915 m"}
+  ],
+  "body_na_mape": [
+   {"km_trasy": 7.105, "nazov": "Minčol 1 157 m", "strana": "end"}
+  ],
+  "start": "Štart · Farma Kamenica",
+  "ciel": "Cieľ · Hotel Šport",
+  "propozicie": [
+   {"nazov": "Štartovné", "hodnota": "36 € (2026), úhrada do 22. 10."},
+   {"nazov": "Prihlášky", "hodnota": "cez ZASRUN do 22. 10. 2026"},
+   {"nazov": "Časový limit", "hodnota": "5 hodín"},
+   {"nazov": "Kapacita", "hodnota": "150 bežcov"},
+   {"nazov": "Kategórie", "hodnota": "MA, MB, MC, ŽA, ŽB"},
+   {"nazov": "Hodnotenie", "hodnota": "prví traja v každej vekovej kategórii, prvý muž a žena v absolútnom poradí"},
+   {"nazov": "Ceny", "hodnota": "vecné ceny pre prvých troch v kategóriách"},
+   {"nazov": "Povrch", "hodnota": "lesný turistický chodník, asfalt"},
+   {"nazov": "Zdravotná služba", "hodnota": "Horská služba Čergov"},
+   {"nazov": "Úschovňa", "hodnota": "v cieli, Hotel Šport"},
+   {"nazov": "Sprcha", "hodnota": "nie je k dispozícii"},
+   {"nazov": "Výbava", "hodnota": "preukaz poistenca, mobil a pohár na vodu"}
+  ],
+  "harmonogram": [
+   {"cas": "7:30–8:30", "popis": "Prezentácia na Farme Kamenica"},
+   {"cas": "8:30", "popis": "Výklad trate, povinný pre všetkých"},
+   {"cas": "9:00", "popis": "Štart"},
+   {"cas": "12:00–14:30", "popis": "Dobeh do cieľa a obed"},
+   {"cas": "15:00", "popis": "Vyhlásenie výsledkov, Hotel Šport"}
+  ],
+  "doprava": [
+   {"nazov": "Autobus", "hodnota": "7:15 z parkoviska pri Hoteli Javorná v Drienici do Kamenice, pre všetkých bežcov"},
+   {"nazov": "Parkovanie", "hodnota": "parkovisko pri Hoteli Javorná, Drienica"},
+   {"nazov": "Batožina", "hodnota": "organizátor odvezie osobné veci zo štartu do cieľa"},
+   {"nazov": "Cieľ", "hodnota": "Hotel Šport, Lysá"}
+  ],
+  "rekordy": {
+   "muzi": {"cas": "2:25:04", "meno": "Peter Fraňo", "klub": "Scarpa/Geosport", "rok": 2026},
+   "zeny": {"cas": "2:49:18", "meno": "Jarmila Kravcová", "klub": "Čergovrun", "rok": 2024}
+  },
+  "archiv": [
+   {"rocnik": 2026, "datum": "2026-10-24", "v_cieli": 122, "vitaz": {"meno": "Peter Fraňo", "cas": "2:25:04"}, "vitazka": {"meno": "Jarmila Kravcová", "cas": "2:52:08"}, "vysledky": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2026"},
+   {"rocnik": 2025, "datum": "2025-10-18", "v_cieli": 97, "vitaz": {"meno": "Pavol Orolin", "cas": "2:27:53"}, "vitazka": {"meno": "Renáta Lechvár", "cas": "3:20:17"}, "vysledky": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2025"},
+   {"rocnik": 2024, "datum": "2024-10-26", "v_cieli": 100, "vitaz": {"meno": "Peter Mlynár", "cas": "2:31:19"}, "vitazka": {"meno": "Jarmila Kravcová", "cas": "2:49:18"}, "vysledky": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2024"},
+   {"rocnik": 2023, "datum": "2023-10-21", "v_cieli": 133, "vitaz": {"meno": "Štefan Planeta", "cas": "2:50:33"}, "vitazka": {"meno": "Viera Slivková", "cas": "3:03:20"}, "vysledky": "https://zasrun.sk/preteky/beh-hrebenom-cergova-2023"}
+  ],
+  "organizatori": [
+   {"nazov": "OZ Čergovrun", "rola": "Hlavný organizátor"},
+   {"nazov": "BK ZasRun Šarišské Bohdanovce", "rola": "Časomiera a registrácia"}
+  ]
+ },
+ {
+  "slug": "umirak",
+  "nazov": "Čergovský umirak",
+  "hlavny": false,
+  "logo": "",
+  "mesiac": "Jún",
+  "miesto": "Čergov",
+  "podnadpis": "Jún · Drienica, štart aj cieľ pri Ride pube",
+  "popis": "Dolinami a hrebeňom Čergova po turisticky značenom chodníku. Pre trénovaných bežcov s chuťou na poriadny kopec.",
+  "stav": "Ročník 2026 sa bežal 27. 6. 2026. Termín 2027 zverejníme na ZASRUN.",
+  "datum": "2026-06-27",
+  "trasa": "umirak",
+  "gpx": "https://zasrun.sk/api/trasy/88/gpx",
+  "registracia": "https://zasrun.sk/preteky/cergovsky-umirak-2026",
+  "itra": null,
+  "liga": "",
+  "cisla": [
+   {"hodnota": "30", "popis": "km ±1 km"},
+   {"hodnota": "+1 235", "popis": "m stúpania"},
+   {"hodnota": "5 h", "popis": "časový limit"},
+   {"hodnota": "50", "popis": "bežcov najviac"}
+  ],
+  "karta": {
+   "cisla": [
+    {"hodnota": "30", "popis": "km ±1 km"},
+    {"hodnota": "+1 235", "popis": "m stúpania"},
+    {"hodnota": "493–1 085", "popis": "m n. m."}
+   ],
+   "zvyraznenie": {"nadpis": "Víťaz 2026", "meno": "Václav Jarčuška", "doplnok": "Čergovrun", "cas": "2:34:43", "tempo": "4:59 min/km"},
+   "vysledky": {"rok": 2026, "url": "https://zasrun.sk/preteky/cergovsky-umirak-2026"}
+  },
+  "obcerstvovacky": [
+   {"km_trasy": 10.0, "nazov": "Dolina Tokárne", "popis": "1. občerstvovačka · cca 10 km"},
+   {"km_trasy": 18.0, "nazov": "Chata Čergov", "popis": "2. občerstvovačka · cca 18 km"}
+  ],
+  "body_na_mape": [
+   {"km_trasy": 15.477, "nazov": "Najvyšší bod 1 085 m", "strana": ""}
+  ],
+  "start": "Štart a cieľ · Ride pub",
+  "ciel": "",
+  "propozicie": [
+   {"nazov": "Štartovné", "hodnota": "25 € do 15. 4., 30 € do 15. 6., 35 € na mieste (bez trička)"},
+   {"nazov": "Prihlášky", "hodnota": "cez ZASRUN"},
+   {"nazov": "Časový limit", "hodnota": "5 hodín"},
+   {"nazov": "Kapacita", "hodnota": "50 bežcov"},
+   {"nazov": "Kategórie", "hodnota": "muži a ženy, absolútne poradie"},
+   {"nazov": "Hodnotenie", "hodnota": "1. až 3. miesto muži a ženy"},
+   {"nazov": "Ceny", "hodnota": "vecné ceny pre víťazov"},
+   {"nazov": "Povrch", "hodnota": "lesný chodník a asfalt, niekoľkokrát cez potok"},
+   {"nazov": "Zdravotná služba", "hodnota": "Horská služba Čergov"},
+   {"nazov": "Šatňa a sprcha", "hodnota": "Chata Ride pub"},
+   {"nazov": "Po preteku", "hodnota": "teplý obed"},
+   {"nazov": "Odhlásenie", "hodnota": "po úhrade si organizátor ponechá 50 %"}
+  ],
+  "harmonogram": [
+   {"cas": "7:30–8:30", "popis": "Prezentácia, Chata Ride pub Drienica 553"},
+   {"cas": "8:30", "popis": "Brífing, povinná účasť"},
+   {"cas": "9:00", "popis": "Štart"},
+   {"cas": "cca 14:30", "popis": "Dobeh posledných bežcov"},
+   {"cas": "po dobehu", "popis": "Vyhlásenie výsledkov"}
+  ],
+  "doprava": [
+   {"nazov": "Parkovanie", "hodnota": "pri Ride pube v Drienici"},
+   {"nazov": "Štart a cieľ", "hodnota": "pred chatou Ride pub, autá máš po dobehu hneď pri sebe"}
+  ],
+  "rekordy": {
+   "muzi": {"cas": "2:32:31", "meno": "Július Kaľavský", "klub": "All4run Margecany", "rok": 2025},
+   "zeny": {"cas": "3:22:47", "meno": "Simona Fritz", "klub": "AK Veterán Prešov", "rok": 2024}
+  },
+  "archiv": [
+   {"rocnik": 2026, "datum": "2026-06-27", "v_cieli": 25, "vitaz": {"meno": "Václav Jarčuška", "cas": "2:34:43"}, "vitazka": {"meno": "Marka Šebejová", "cas": "4:36:10"}, "vysledky": "https://zasrun.sk/preteky/cergovsky-umirak-2026"},
+   {"rocnik": 2025, "datum": "2025-06-28", "v_cieli": 40, "vitaz": {"meno": "Július Kaľavský", "cas": "2:32:31"}, "vitazka": {"meno": "Katarína Vitovičová", "cas": "3:26:21"}, "vysledky": "https://zasrun.sk/preteky/cergovsky-umirak-2025"},
+   {"rocnik": 2024, "datum": "2024-06-29", "v_cieli": 31, "vitaz": {"meno": "Július Kaľavský", "cas": "2:45:10"}, "vitazka": {"meno": "Simona Fritz", "cas": "3:22:47"}, "vysledky": "https://zasrun.sk/preteky/cergovsky-umirak-2024"}
+  ],
+  "organizatori": [
+   {"nazov": "OZ Čergovrun", "rola": "Hlavný organizátor"},
+   {"nazov": "Marián Gargalovič", "rola": "Spoluorganizátor"},
+   {"nazov": "BK ZasRun Šarišské Bohdanovce", "rola": "Časomiera a registrácia"}
+  ]
+ }
+]

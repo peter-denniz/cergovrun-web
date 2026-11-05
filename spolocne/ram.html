@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="sk" data-web="{{web}}">
+<head>
+<meta charset="utf-8">
+<title>{{titul}}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+{{base}}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@300;400&family=Hanken+Grotesk:wght@400;500&display=swap">
+<link rel="stylesheet" href="spolocne/styly.css">
+{{css}}</head>
+<body>
+<!-- Spoločný rám všetkých webov: pozadie s vrstevnicami, hlavička, obsah stránky. Skladá ho nastroje/zostav.py. -->
+<div class="topo" id="topoWrap" data-bg="drift" aria-hidden="true"><div class="topo-in">
+ <img class="topo-l" src="spolocne/grafika/vrstevnice.svg" width="1000" height="765" alt="" decoding="async">
+ <svg class="topo-l" id="topo" viewBox="0 0 1000 765" preserveAspectRatio="xMidYMid slice">
+  <path class="route2" id="rUmirak" pathLength="1"></path>
+  <path class="route" id="rHreben" pathLength="1"></path>
+  <g id="peaks"></g>
+ </svg>
+</div></div><div class="veil" aria-hidden="true"></div>
+
+<header class="top">
+ <div class="wrap bar">
+  <a class="brand" href="{{odkaz klub}}">Čergovrun</a>
+  <button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="b-3" d="M4 7h16M4 12h16M4 17h16"/><path class="b-x" d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <nav aria-label="Hlavné menu" id="menu">
+   <a href="{{odkaz klub #preteky}}">Preteky</a><a href="{{odkaz klub novinky/}}">Novinky</a><a href="{{odkaz klub #challenge}}">Výzvy</a><a href="{{odkaz klub #galeria}}">Galéria</a><a href="{{odkaz klub klub/}}">O klube</a>
+  </nav>
+ </div>
+</header>
+
+{{obsah}}
+<script type="application/json" id="data-weby">{{weby}}</script>
+<script src="spolocne/obsah.js"></script>
+<script src="spolocne/mapa.js"></script>
+<script src="spolocne/ram.js"></script>
+{{skripty}}</body>
+</html>

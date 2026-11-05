@@ -1,26 +1,41 @@
 # Čergovrun – návrh webu
 
-Prototyp nového webu bežeckého klubu Čergovrun (cergovrun.sk). Statické HTML, CSS a JS bez buildu.
+Prototyp nového webu bežeckého klubu Čergovrun (cergovrun.sk). Statické HTML, CSS a JS; obsah je v JSON súboroch.
+Klub a každý pretek sú samostatné weby, aby preteky mohli bežať na vlastných subdoménach.
 
 Zdroj: Claude artifact https://claude.ai/artifact/55AdyS9bwSesESB9aYZYx5
 
-## Stránky
-- `index.html` – úvod: preteky, novinky, výzvy, galéria (obsah je vložený ako JSON v `<script type="application/json" id="data-…">`)
-- `pretek.html` – detail preteku (Beh hrebeňom Čergova, Čergovský umirak)
-- `novinky.html` – archív noviniek a šablóna článku
-- `klub.html` – o klube, kontakt, 2 % dane
+## Štruktúra
+- `weby.json` – adresa každého webu (`klub`, `hreben`, `umirak`). Všetky odkazy medzi webmi sa tvoria z neho:
+  v HTML značkou `{{odkaz web cesta}}`, v JS funkciou `odkaz(web, cesta)`. Presun preteku na subdoménu = zmena jednej adresy.
+- `data/` – obsah (preteky, trate, novinky, galéria, klub, výbehy), popis polí v `data/README.md`.
+- `spolocne/` – rám stránky (`ram.html`: pozadie, hlavička), `styly.css`, `obsah.js` (načítanie obsahu, `odkaz()`),
+  `mapa.js` (projekcia, trasy v pozadí, výškový profil, mapa trate), `ram.js` (menu, pozadie), `grafika/`.
+- `stranky/klub/` – úvod, novinky, o klube. `stranky/pretek/` – jedna šablóna pre všetky preteky;
+  ktorý pretek sa zobrazí, určuje kľúč webu (= `slug` v `data/preteky.json`).
+- `stranky/stranky.json` – ktoré stránky tvoria ktorý web, priečinok v `dist/` a port náhľadu.
+- `galeria/` – fotky (kopírujú sa len na web klubu).
+- `nastroje/` – skripty a testy (nižšie).
 
-## Súbory
-- `trate.js` – trasy pretekov z GPX (ZASRUN), zredukované na `[km, šírka, dĺžka, výška]`
-- `pozadie.js` – vrstevnice a kreslenie trás v pozadí podstránok
-- `router.js` – prepínanie podstránok v prehliadači artefaktov; na bežnom hostingu stačia obyčajné odkazy
-- `vrstevnice.svg`, `logo-hreben.svg`, `logo-ssa-svetle.png`, `galeria/` – grafika a fotky
+CSS podstránok sa pri zostavení uzavrie pod obal stránky (`#v-pretek …`), presne ako to predtým robil `scopeCss()`.
 
-## Spustenie
-Otvor `index.html` cez lokálny server (kvôli `fetch` v routeri), napr.:
+## Zostavenie a náhľad
+```
+python nastroje/zostav.py
+```
+vytvorí `dist/cergovrun.sk/`, `dist/behhrebenomcergova.cergovrun.sk/` a `dist/cergovskyumirak.cergovrun.sk/`.
+Každý priečinok je samostatný (spoločné súbory aj dáta), subdoména naň môže ukazovať priamo.
 
 ```
-python -m http.server 8000
+python nastroje/nahlad.py
+```
+zostaví weby s lokálnymi adresami do `dist/_nahlad/` a servíruje ich na http://localhost:8000 (klub),
+:8001 (Beh hrebeňom) a :8002 (Umirak).
+
+Testy nástrojov:
+```
+python -m unittest discover -s nastroje -p "test_*.py"
 ```
 
-a choď na http://localhost:8000
+`nastroje/vytiahni_data.py` a `nastroje/vytiahni_css.py` sú jednorazové skripty, ktoré rozdelili pôvodný `index.html`
+(v histórii gitu) na `data/*.json` a CSS súbory.
