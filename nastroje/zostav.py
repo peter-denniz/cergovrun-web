@@ -3,6 +3,8 @@ Každý priečinok obsahuje všetko, čo potrebuje (spoločné súbory, dáta, s
 
   python nastroje/zostav.py            # adresy z weby.json
   python nastroje/zostav.py --nahlad   # adresy http://localhost:<port>/ pre nastroje/nahlad.py
+  python nastroje/zostav.py --adresy weby.netlify.json --spoj --ciel dist/netlify
+                                       # iné adresy; weby na jednej doméne spojí do jedného priečinka
 """
 import argparse
 import html
@@ -10,6 +12,7 @@ import json
 import re
 import shutil
 from pathlib import Path
+from urllib.parse import urlsplit
 
 KOREN = Path(__file__).resolve().parent.parent
 ZNACKA = re.compile(r"\{\{([^{}]*)\}\}")
@@ -144,12 +147,44 @@ def zapis(cesta: Path, text: str):
     cesta.write_text(text, encoding="utf-8", newline="\n")
 
 
+def spoj(hotove: dict, weby: dict, ciel: Path) -> dict:
+    """Weby na rovnakej doméne poskladá do jedného priečinka ciel/<doména>/ podľa ciest v adresách
+    (napr. klub na /, pretek na /beh-hrebenom-cergova/). Vráti {doména: priečinok}."""
+    domeny = {}
+    for web, priecinok in hotove.items():
+        adresa = urlsplit(weby[web]["adresa"])
+        domeny.setdefault(adresa.netloc, []).append((adresa.path.strip("/"), priecinok))
+    von = {}
+    for domena, casti in domeny.items():
+        spolu = Path(ciel) / domena.replace(":", "_")
+        if spolu.exists():
+            shutil.rmtree(spolu)
+        # najprv koreň, potom hlbšie cesty; zhodný súbor z dvoch webov je chyba
+        for cesta, priecinok in sorted(casti, key=lambda c: c[0].count("/") + bool(c[0])):
+            if (spolu / cesta).exists() and cesta and any((spolu / cesta).iterdir()):
+                raise FileExistsError(f"{domena}/{cesta} už obsadil iný web")
+            shutil.copytree(priecinok, spolu / cesta, dirs_exist_ok=True)
+        von[domena] = spolu
+    return von
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ciel", default=str(KOREN / "dist"))
     ap.add_argument("--nahlad", action="store_true", help="adresy webov na localhost (pre nahlad.py)")
+    ap.add_argument("--adresy", help="iný súbor s adresami namiesto weby.json (napr. weby.netlify.json)")
+    ap.add_argument("--spoj", action="store_true", help="weby na jednej doméne spojí do ciel/<doména>/")
     a = ap.parse_args()
-    for web, von in zostav(Path(a.ciel), a.nahlad).items():
+    weby = nacitaj(KOREN / a.adresy) if a.adresy else None
+    ciel = Path(a.ciel)
+    hotove = zostav(ciel / "_weby" if a.spoj else ciel, a.nahlad, weby=weby)
+    if a.spoj:
+        weby = weby or nacitaj(KOREN / "weby.json")
+        for domena, von in spoj(hotove, weby, ciel).items():
+            print(f"{domena:30} {von}")
+        shutil.rmtree(ciel / "_weby")
+        return
+    for web, von in hotove.items():
         print(f"{web:8} {von}")
 
 

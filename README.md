@@ -31,6 +31,14 @@ python nastroje/nahlad.py
 zostaví weby s lokálnymi adresami do `dist/_nahlad/` a servíruje ich na http://localhost:8000 (klub),
 :8001 (Beh hrebeňom) a :8002 (Umirak).
 
+### Náhľad na Netlify
+https://cergovrun.netlify.app/ je jeden web: klub na koreni, preteky v `/beh-hrebenom-cergova/` a `/cergovsky-umirak/`
+(adresy vo `weby.netlify.json`). Netlify ho zostaví podľa `netlify.toml`; lokálne to isté urobí
+```
+python nastroje/zostav.py --adresy weby.netlify.json --spoj --ciel dist/netlify
+```
+a výsledok je v `dist/netlify/cergovrun.netlify.app/`.
+
 Testy nástrojov:
 ```
 python -m unittest discover -s nastroje -p "test_*.py"

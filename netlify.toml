@@ -1,0 +1,8 @@
+# Náhľad na https://cergovrun.netlify.app/: všetky tri weby na jednej doméne (preteky v podpriečinkoch),
+# adresy z weby.netlify.json. Netlify zostaví web pri každom pushi do main.
+[build]
+  command = "python3 nastroje/zostav.py --adresy weby.netlify.json --spoj --ciel dist/netlify"
+  publish = "dist/netlify/cergovrun.netlify.app"
+
+[build.environment]
+  PYTHON_VERSION = "3.12"

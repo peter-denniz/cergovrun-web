@@ -90,5 +90,30 @@ class TestZostav(unittest.TestCase):
             for web in ("klub", "hreben", "umirak"):
                 self.assertIn(f'http://localhost:{self.stranky[web]["nahlad"]}/', text)
 
+class TestSpoj(unittest.TestCase):
+    def test_netlify_jeden_priecinok(self):
+        # klub na koreni, preteky v podpriečinkoch podľa adries vo weby.netlify.json
+        weby = zostav.nacitaj(zostav.KOREN / "weby.netlify.json")
+        with tempfile.TemporaryDirectory() as d:
+            hotove = zostav.zostav(Path(d) / "_weby", weby=weby)
+            von = zostav.spoj(hotove, weby, Path(d))
+            self.assertEqual(list(von), ["cergovrun.netlify.app"])
+            koren = von["cergovrun.netlify.app"]
+            for cesta in ("index.html", "novinky/index.html", "beh-hrebenom-cergova/index.html",
+                          "cergovsky-umirak/index.html", "beh-hrebenom-cergova/data/trate.json"):
+                self.assertTrue((koren / cesta).exists(), cesta)
+            self.assertIn('data-web="umirak"', (koren / "cergovsky-umirak/index.html").read_text(encoding="utf-8"))
+            self.assertIn("https://cergovrun.netlify.app/beh-hrebenom-cergova/", (koren / "index.html").read_text(encoding="utf-8"))
+
+    def test_kolizia(self):
+        # dva weby na tej istej adrese sa nesmú prepísať
+        weby = zostav.nacitaj(zostav.KOREN / "weby.netlify.json")
+        weby["umirak"]["adresa"] = weby["hreben"]["adresa"]
+        with tempfile.TemporaryDirectory() as d:
+            hotove = zostav.zostav(Path(d) / "_weby", weby=weby)
+            with self.assertRaises(FileExistsError):
+                zostav.spoj(hotove, weby, Path(d))
+
+
 if __name__ == "__main__":
     unittest.main()
