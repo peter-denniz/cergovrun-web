@@ -3,7 +3,6 @@
 Prototyp nového webu bežeckého klubu Čergovrun (cergovrun.sk). Statické HTML, CSS a JS; obsah je v JSON súboroch.
 Klub a každý pretek sú samostatné weby, aby preteky mohli bežať na vlastných subdoménach.
 
-Zdroj: Claude artifact https://claude.ai/artifact/55AdyS9bwSesESB9aYZYx5
 
 ## Štruktúra
 - `weby.json` – adresa každého webu (`klub`, `hreben`, `umirak`). Všetky odkazy medzi webmi sa tvoria z neho:
